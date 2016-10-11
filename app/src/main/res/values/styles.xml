@@ -16,4 +16,13 @@
         <item name="android:background">@color/my_theme_accent</item>
     </style>
 
+    <style name="TransparentLargeText" parent="@android:style/TextAppearance.DeviceDefault">
+        <item name="android:textSize">18sp</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="TitleText" parent="@style/TransparentLargeText">
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>
