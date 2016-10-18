@@ -5,5 +5,5 @@ package cz.muni.fi.pv256.movio2.fk410022;
  */
 
 public interface OnItemClickListener {
-        void onItemClick(Film film);
+    void onItemClick(Film film);
 }
