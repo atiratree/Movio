@@ -2,7 +2,6 @@ package cz.muni.fi.pv256.movio2.fk410022;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,56 +15,14 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         isTablet = getResources().getBoolean(R.bool.isTablet);
-        RecyclerView mRecyclerView;
-        RecyclerView.Adapter mAdapter;
-        RecyclerView.LayoutManager mLayoutManager;
 
         super.onCreate(savedInstanceState);
         PreferencesUtils myPrefs = new PreferencesUtils(this);
         setTheme(myPrefs.getPrefTheme().getValue());
         setContentView(R.layout.activity_main);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        mRecyclerView.setHasFixedSize(true);
-
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
-        Film[] movies = new Film[]{
-                new Film("The Shawshank Redemption",
-                        getString(R.string.the_shawshank_redemption_description),
-                        1994, 4.858781,
-                        R.drawable.the_shawshank_redemption,
-                        R.drawable.the_shawshank_redemption_backdrop),
-                new Film("The Godfather",
-                        getString(R.string.the_godfather__description),
-                        2014, 4.117833,
-                        R.drawable.the_godfather,
-                        R.drawable.the_godfather_backdrop),
-                new Film("Whiplash",
-                        getString(R.string.whiplash_description),
-                        2014, 4.117833,
-                        R.drawable.whiplash,
-                        R.drawable.whiplash_backdrop),
-                new Film("Hunt for the Wilderpeople",
-                        getString(R.string.hunt_for_the_wilderpeople_description),
-                        2016, 3.776794,
-                        R.drawable.hunt_for_the_wilderpeople,
-                        R.drawable.hunt_for_the_wilderpeople_backdrop),
-                new Film("Spirited Away",
-                        getString(R.string.spirited_away_description),
-                        2001, 2.596589,
-                        R.drawable.spirited_away,
-                        R.drawable.spirited_away_backdrop),
-                new Film("Interstellar",
-                        getString(R.string.hunt_for_the_wilderpeople_description),
-                        2014, 11.710438,
-                        R.drawable.interstellar,
-                        R.drawable.interstellar_backdrop)};
-        mAdapter = new MyAdapter(movies, this);
-        mRecyclerView.setAdapter(mAdapter);
-
-        findViewById(R.id.recycler_view);
+        initializeRecyclerView((RecyclerView) findViewById(R.id.recycler_view_popular_movies), getMovies());
+        initializeRecyclerView((RecyclerView) findViewById(R.id.recycler_view_popular_shows), getShows());
     }
 
     @Override
@@ -105,6 +62,61 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void initializeRecyclerView(RecyclerView recyclerView, Film[] films) {
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView.Adapter adapter;
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setHasFixedSize(true);
+
+        if (Utils.isNetworkAvailable(getApplicationContext())) {
+            //download films
+            adapter = (films.length == 0) ? new MessageAdapter("Žádná data") : new MovieAdapter(films, this);
+
+        } else {
+            adapter = new MessageAdapter("Žádné připojení");
+        }
+
+        recyclerView.setAdapter(adapter);
+    }
+
+    private Film[] getMovies() {
+        return new Film[]{
+                new Film("The Shawshank Redemption",
+                        getString(R.string.the_shawshank_redemption_description),
+                        1994, 4.858781,
+                        R.drawable.the_shawshank_redemption,
+                        R.drawable.the_shawshank_redemption_backdrop),
+                new Film("The Godfather",
+                        getString(R.string.the_godfather__description),
+                        2014, 4.117833,
+                        R.drawable.the_godfather,
+                        R.drawable.the_godfather_backdrop),
+                new Film("Whiplash",
+                        getString(R.string.whiplash_description),
+                        2014, 4.117833,
+                        R.drawable.whiplash,
+                        R.drawable.whiplash_backdrop),
+                new Film("Hunt for the Wilderpeople",
+                        getString(R.string.hunt_for_the_wilderpeople_description),
+                        2016, 3.776794,
+                        R.drawable.hunt_for_the_wilderpeople,
+                        R.drawable.hunt_for_the_wilderpeople_backdrop),
+                new Film("Spirited Away",
+                        getString(R.string.spirited_away_description),
+                        2001, 2.596589,
+                        R.drawable.spirited_away,
+                        R.drawable.spirited_away_backdrop),
+                new Film("Interstellar",
+                        getString(R.string.hunt_for_the_wilderpeople_description),
+                        2014, 11.710438,
+                        R.drawable.interstellar,
+                        R.drawable.interstellar_backdrop)};
+    }
+
+    private Film[] getShows() {
+        return new Film[]{};
     }
 
     private void changeTheme() {
