@@ -1,4 +1,4 @@
-package cz.muni.fi.pv256.movio2.fk410022;
+package cz.muni.fi.pv256.movio2.fk410022.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -8,11 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import cz.muni.fi.pv256.movio2.fk410022.R;
+
 /**
  * Created by suomiy on 10/4/16.
  */
 
-class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
+public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
     private static final String TAG = MessageAdapter.class.getSimpleName();
 
     private String[] mDataset;
@@ -29,7 +31,7 @@ class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
         }
     }
 
-    MessageAdapter(String message) {
+    public MessageAdapter(String message) {
         mDataset = new String[]{message};
     }
 

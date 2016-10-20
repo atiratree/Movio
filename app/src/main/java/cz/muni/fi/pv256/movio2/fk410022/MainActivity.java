@@ -9,6 +9,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import cz.muni.fi.pv256.movio2.fk410022.adapter.MessageAdapter;
+import cz.muni.fi.pv256.movio2.fk410022.adapter.MovieAdapter;
+import cz.muni.fi.pv256.movio2.fk410022.model.Film;
+
 public class MainActivity extends AppCompatActivity implements OnItemClickListener {
     private boolean isTablet = false;
 
