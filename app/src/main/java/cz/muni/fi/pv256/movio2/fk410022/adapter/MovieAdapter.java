@@ -1,8 +1,11 @@
-package cz.muni.fi.pv256.movio2.fk410022;
+package cz.muni.fi.pv256.movio2.fk410022.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -10,24 +13,29 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TableLayout;
 import android.widget.TextView;
+
+import cz.muni.fi.pv256.movio2.fk410022.OnItemClickListener;
+import cz.muni.fi.pv256.movio2.fk410022.R;
+import cz.muni.fi.pv256.movio2.fk410022.Utils;
+import cz.muni.fi.pv256.movio2.fk410022.drawable.GradientStar;
+import cz.muni.fi.pv256.movio2.fk410022.model.Film;
 
 /**
  * Created by suomiy on 10/4/16.
  */
 
-class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
     private static final String TAG = MovieAdapter.class.getSimpleName();
 
     private final OnItemClickListener mListener;
     private Film[] mDataset;
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title;
         ImageView imageView;
+        ImageView star;
         RelativeLayout detail;
         TextView rating;
         private final Context context;
@@ -38,12 +46,13 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
             title = (TextView) itemView.findViewById(R.id.view_item_title);
             imageView = (ImageView) itemView.findViewById(R.id.view_item_image);
+            star = (ImageView) itemView.findViewById(R.id.view_item_star);
             detail = (RelativeLayout) itemView.findViewById(R.id.view_item_detail);
             rating = (TextView) itemView.findViewById(R.id.view_item_rating);
         }
     }
 
-    MovieAdapter(Film[] myDataset, OnItemClickListener listener) {
+    public MovieAdapter(Film[] myDataset, OnItemClickListener listener) {
         mDataset = myDataset;
         mListener = listener;
     }
@@ -59,10 +68,16 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
+        Context context = holder.context;
         final Film film = mDataset[position];
+
         holder.title.setText(film.getTitle());
         holder.rating.setText(String.format("%.1f", film.getPopularity()));
         holder.imageView.setImageResource(film.getCoverPath());
+        holder.star.setImageDrawable(new GradientStar(ContextCompat.getColor(context, R.color.star_start_gradient),
+                ContextCompat.getColor(context, R.color.star_end_gradient),
+                ContextCompat.getColor(context, R.color.star_line_start_gradient),
+                ContextCompat.getColor(context, R.color.star_line_end_gradient)));
 
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,16 +86,17 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
             }
         });
 
-        Bitmap myBitmap = BitmapFactory.decodeResource(holder.context.getResources(), film.getCoverPath());
+        Bitmap myBitmap = BitmapFactory.decodeResource(context.getResources(), film.getCoverPath());
         if (myBitmap != null && !myBitmap.isRecycled()) {
-
             Palette palette = Palette.from(myBitmap).generate();
-            int muted = palette.getMutedColor(holder.context.getResources().getColor(R.color.palette_default));
-            holder.detail.setBackgroundColor(Utils.addAlphaToColor(muted, 0.5f));
+            int muted = palette.getMutedColor(ContextCompat.getColor(context, R.color.palette_default));
+            Drawable background = ContextCompat.getDrawable(context, R.drawable.fiml_list_detail);
+            ((GradientDrawable) background).setColors(new int[]{Utils.addAlphaToColor(muted, 0f),
+                    Utils.addAlphaToColor(muted, 0.5f)});
+            holder.detail.setBackground(background);
         }
 
-        Log.i(TAG, "bind viev holder:" + film.getTitle());
-
+        Log.i(TAG, "bind view holder:" + film.getTitle());
     }
 
     @Override

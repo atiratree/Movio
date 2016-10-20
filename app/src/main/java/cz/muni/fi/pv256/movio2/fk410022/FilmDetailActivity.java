@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 
+import cz.muni.fi.pv256.movio2.fk410022.model.Film;
+
 public class FilmDetailActivity extends AppCompatActivity {
     private static final String TAG = FilmDetailActivity.class.getSimpleName();
     public static final String FILM_PARAM = "FILM_PARAM";

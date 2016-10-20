@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import cz.muni.fi.pv256.movio2.fk410022.model.Film;
+
 import static cz.muni.fi.pv256.movio2.fk410022.FilmDetailActivity.FILM_PARAM;
 
 public class FilmDetailFragment extends Fragment {

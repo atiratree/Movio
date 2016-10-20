@@ -74,11 +74,11 @@
         ​
     </android.support.design.widget.AppBarLayout>
     ​
+
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        >
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <TextView
             android:id="@+id/description"
@@ -88,8 +88,7 @@
             android:textSize="16sp"
             android:lineSpacingExtra="8dp"
             android:text="string/lorem"
-            android:padding="@dimen/activity_horizontal_margin"
-            />
+            android:padding="@dimen/activity_horizontal_margin" />
     </android.support.v4.widget.NestedScrollView>
 
     <android.support.design.widget.FloatingActionButton
@@ -101,7 +100,6 @@
         app:backgroundTint="@color/fab"
         android:src="@drawable/ic_add_black_24dp"
         app:layout_anchorGravity="bottom|right|end"
-        android:elevation="8dp"
-        />
+        android:elevation="8dp" />
     ​
 </android.support.design.widget.CoordinatorLayout>
