@@ -1,19 +1,17 @@
-package cz.muni.fi.pv256.movio2.fk410022;
+package cz.muni.fi.pv256.movio2.fk410022.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 
+import cz.muni.fi.pv256.movio2.fk410022.R;
+import cz.muni.fi.pv256.movio2.fk410022.util.Utils;
 import cz.muni.fi.pv256.movio2.fk410022.adapter.MessageAdapter;
 import cz.muni.fi.pv256.movio2.fk410022.adapter.MovieAdapter;
 import cz.muni.fi.pv256.movio2.fk410022.model.Film;
 
-public class MainActivity extends AppCompatActivity implements OnItemClickListener {
+public class MainActivity extends MainMenuActivity implements OnItemClickListener {
     private boolean isTablet = false;
 
     @Override
@@ -21,8 +19,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         isTablet = getResources().getBoolean(R.bool.isTablet);
 
         super.onCreate(savedInstanceState);
-        PreferencesUtils myPrefs = new PreferencesUtils(this);
-        setTheme(myPrefs.getPrefTheme().getValue());
         setContentView(R.layout.activity_main);
 
         initializeRecyclerView((RecyclerView) findViewById(R.id.recycler_view_popular_movies), getMovies());
@@ -47,24 +43,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
                 transaction.commit();
             }
 
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.changeTheme:
-                changeTheme();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -121,13 +99,5 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     private Film[] getShows() {
         return new Film[]{};
-    }
-
-    private void changeTheme() {
-        PreferencesUtils myPrefs = new PreferencesUtils(this);
-        Theme theme = myPrefs.getPrefTheme();
-        theme = (theme == Theme.APP_THEME) ? Theme.MY_THEME : Theme.APP_THEME;
-        myPrefs.savePrefTheme(theme);
-        recreate();
     }
 }

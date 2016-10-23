@@ -1,12 +1,8 @@
-package cz.muni.fi.pv256.movio2.fk410022;
+package cz.muni.fi.pv256.movio2.fk410022.util;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-
-/**
- * Created by suomiy on 10/18/16.
- */
 
 public class Utils {
 

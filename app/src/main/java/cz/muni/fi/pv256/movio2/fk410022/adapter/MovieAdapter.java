@@ -16,15 +16,11 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import cz.muni.fi.pv256.movio2.fk410022.OnItemClickListener;
 import cz.muni.fi.pv256.movio2.fk410022.R;
-import cz.muni.fi.pv256.movio2.fk410022.Utils;
+import cz.muni.fi.pv256.movio2.fk410022.util.Utils;
 import cz.muni.fi.pv256.movio2.fk410022.drawable.GradientStar;
 import cz.muni.fi.pv256.movio2.fk410022.model.Film;
-
-/**
- * Created by suomiy on 10/4/16.
- */
+import cz.muni.fi.pv256.movio2.fk410022.ui.OnItemClickListener;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
     private static final String TAG = MovieAdapter.class.getSimpleName();

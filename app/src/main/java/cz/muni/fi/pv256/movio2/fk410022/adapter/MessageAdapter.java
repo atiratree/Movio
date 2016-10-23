@@ -10,10 +10,6 @@ import android.widget.TextView;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
 
-/**
- * Created by suomiy on 10/4/16.
- */
-
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
     private static final String TAG = MessageAdapter.class.getSimpleName();
 

@@ -3,10 +3,6 @@ package cz.muni.fi.pv256.movio2.fk410022.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by suomiy on 10/4/16.
- */
-
 public class Film implements Parcelable {
     private String title;
     private String description;
