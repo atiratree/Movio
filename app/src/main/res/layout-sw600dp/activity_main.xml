@@ -27,13 +27,26 @@
                 android:layout_height="wrap_content"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
-                android:text="@string/popular_movies" />
+                android:text="@string/recent_popular_movies" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view_popular_movies"
                 android:layout_width="match_parent"
-                android:layout_height="252dp"
-                android:background="@color/white" />
+                android:layout_height="@dimen/poster_list_height" />
+
+            <TextView
+                android:id="@+id/current_year_popular_independent_title"
+                style="@style/TitleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingTop="15dp"
+                android:paddingRight="@dimen/activity_horizontal_margin" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view_current_year_popular_independent_movies"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/poster_list_height" />
 
             <TextView
                 android:id="@+id/popular_shows_title"
@@ -42,13 +55,13 @@
                 android:layout_height="wrap_content"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
-                android:text="@string/popular_shows" />
+                android:paddingTop="15dp"
+                android:text="@string/highly_rated_scifi_movies" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view_popular_shows"
                 android:layout_width="match_parent"
-                android:layout_height="252dp"
-                android:background="@color/white" />
+                android:layout_height="@dimen/poster_list_height" />
         </LinearLayout>
     </ScrollView>
 

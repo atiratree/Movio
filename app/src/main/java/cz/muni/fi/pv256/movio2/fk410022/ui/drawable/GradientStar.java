@@ -1,4 +1,4 @@
-package cz.muni.fi.pv256.movio2.fk410022.drawable;
+package cz.muni.fi.pv256.movio2.fk410022.ui.drawable;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -92,9 +92,7 @@ public class GradientStar extends Drawable {
         path.lineTo(topXPoint, topYPoint);
 
         path.close();
-
     }
-
 
     @Override
     public void draw(Canvas canvas) {
@@ -118,5 +116,4 @@ public class GradientStar extends Drawable {
     public int getOpacity() {
         return PixelFormat.TRANSLUCENT;
     }
-
 }

@@ -3,35 +3,38 @@ package cz.muni.fi.pv256.movio2.fk410022.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Date;
+
 public class Film implements Parcelable {
+    private Long id;
     private String title;
     private String description;
-    private long releaseDate;
+    private Date releaseDate;
+    private String posterPathId;
+    private String backdropPathId;
     private double popularity;
-    private int coverPath;
-    private int backdrop;
+    private double rating;
+
+    public Film() {
+    }
 
     public Film(Parcel pc) {
+        id = pc.readLong();
         title = pc.readString();
         description = pc.readString();
-        releaseDate = pc.readLong();
+        releaseDate = new Date(pc.readLong());
+        posterPathId = pc.readString();
+        backdropPathId = pc.readString();
         popularity = pc.readDouble();
-        coverPath = pc.readInt();
-        backdrop = pc.readInt();
+        rating = pc.readDouble();
     }
 
-    public Film(String title, String description, long releaseDate, double popularity, int coverPath, int backdrop) {
-        this.title = title;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.popularity = popularity;
-        this.coverPath = coverPath;
-        this.backdrop = backdrop;
+    public Long getId() {
+        return id;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -50,12 +53,28 @@ public class Film implements Parcelable {
         this.description = description;
     }
 
-    public long getReleaseDate() {
+    public Date getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(long releaseDate) {
+    public void setReleaseDate(Date releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    public String getPosterPathId() {
+        return posterPathId;
+    }
+
+    public void setPosterPathId(String posterPathId) {
+        this.posterPathId = posterPathId;
+    }
+
+    public String getBackdropPathId() {
+        return backdropPathId;
+    }
+
+    public void setBackdropPathId(String backdropPathId) {
+        this.backdropPathId = backdropPathId;
     }
 
     public double getPopularity() {
@@ -66,30 +85,33 @@ public class Film implements Parcelable {
         this.popularity = popularity;
     }
 
-    public int getCoverPath() {
-        return coverPath;
+    public double getRating() {
+        return rating;
     }
 
-    public void setCoverPath(int coverPath) {
-        this.coverPath = coverPath;
+    public void setRating(double rating) {
+        this.rating = rating;
     }
 
-    public int getBackdrop() {
-        return backdrop;
+    public static Creator<Film> getCREATOR() {
+        return CREATOR;
     }
 
-    public void setBackdrop(int backdrop) {
-        this.backdrop = backdrop;
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     @Override
     public void writeToParcel(Parcel parcel, int flags) {
+        parcel.writeLong(id);
         parcel.writeString(title);
         parcel.writeString(description);
-        parcel.writeLong(releaseDate);
+        parcel.writeLong(releaseDate.getTime());
+        parcel.writeString(posterPathId);
+        parcel.writeString(backdropPathId);
         parcel.writeDouble(popularity);
-        parcel.writeInt(coverPath);
-        parcel.writeInt(backdrop);
+        parcel.writeDouble(rating);
     }
 
     public static final Parcelable.Creator<Film> CREATOR = new Parcelable.Creator<Film>() {
@@ -101,5 +123,20 @@ public class Film implements Parcelable {
             return new Film[size];
         }
     };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Film)) return false;
+
+        Film film = (Film) o;
+
+        return id != null ? id.equals(film.id) : film.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }
 

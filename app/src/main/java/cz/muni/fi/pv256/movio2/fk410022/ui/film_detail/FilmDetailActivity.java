@@ -1,9 +1,9 @@
-package cz.muni.fi.pv256.movio2.fk410022.ui;
+package cz.muni.fi.pv256.movio2.fk410022.ui.film_detail;
 
 import android.os.Bundle;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
-import cz.muni.fi.pv256.movio2.fk410022.model.Film;
+import cz.muni.fi.pv256.movio2.fk410022.ui.MainMenuActivity;
 
 public class FilmDetailActivity extends MainMenuActivity {
     private static final String TAG = FilmDetailActivity.class.getSimpleName();

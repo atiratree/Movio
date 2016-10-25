@@ -3,6 +3,9 @@
     package="cz.muni.fi.pv256.movio2.fk410022">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!--<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
 
     <application
         android:name="cz.muni.fi.pv256.movio2.fk410022.App"
@@ -20,7 +23,7 @@
         </activity>
 
         <activity
-            android:name=".ui.FilmDetailActivity"
+            android:name=".ui.film_detail.FilmDetailActivity"
             android:parentActivityName=".ui.MainActivity" />
 
     </application>

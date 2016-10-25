@@ -5,8 +5,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import cz.muni.fi.pv256.movio2.fk410022.util.PreferencesUtils;
 import cz.muni.fi.pv256.movio2.fk410022.R;
+import cz.muni.fi.pv256.movio2.fk410022.util.PreferencesUtils;
 
 public abstract class MainMenuActivity extends MovioActivity {
     @Override
