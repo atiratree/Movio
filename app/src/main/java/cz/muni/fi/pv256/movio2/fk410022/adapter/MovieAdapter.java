@@ -75,12 +75,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
                 ContextCompat.getColor(context, R.color.star_line_start_gradient),
                 ContextCompat.getColor(context, R.color.star_line_end_gradient)));
 
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mListener.onItemClick(film);
-            }
-        });
+        holder.imageView.setOnClickListener(view -> mListener.onItemClick(film));
 
         Bitmap myBitmap = BitmapFactory.decodeResource(context.getResources(), film.getCoverPath());
         if (myBitmap != null && !myBitmap.isRecycled()) {

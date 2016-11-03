@@ -19,7 +19,7 @@ public class FilmDetailActivity extends MainMenuActivity {
                 return;
             }
 
-            FilmDetailFragment firstFragment = FilmDetailFragment.newInstance((Film) getIntent().getParcelableExtra(FILM_PARAM));
+            FilmDetailFragment firstFragment = FilmDetailFragment.newInstance(getIntent().getParcelableExtra(FILM_PARAM));
             getFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, firstFragment).commit();
         }
