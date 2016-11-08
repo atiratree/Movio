@@ -8,7 +8,7 @@ import android.view.MenuItem;
 import cz.muni.fi.pv256.movio2.fk410022.R;
 import cz.muni.fi.pv256.movio2.fk410022.util.PreferencesUtils;
 
-public abstract class MainMenuActivity extends MovioActivity {
+public abstract class BaseMenuActivity extends MovioActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -19,7 +19,7 @@ public abstract class MainMenuActivity extends MovioActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
+        inflater.inflate(R.menu.base_menu, menu);
         return true;
     }
 

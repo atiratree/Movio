@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class Utils {
+    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
     public static void showToast(Context context, String msg) {
         Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
@@ -33,17 +34,21 @@ public class Utils {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public static String convertToString(Date date) {
+    public static String convertToReadableString(Date date) {
         DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault());
         return df.format(date);
     }
 
     public static Date convertToDate(String date) {
         try {
-            return new SimpleDateFormat("yyyy-MM-dd").parse(date);
+            return format.parse(date);
         } catch (ParseException e) {
             return null;
         }
+    }
+
+    public static String convertToString(Date date) {
+        return format.format(date.getTime());
     }
 
     public static void checkNotNull(Object o) {

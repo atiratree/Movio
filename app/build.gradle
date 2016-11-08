@@ -30,7 +30,7 @@ dependencies {
     ext.androidSupportVersion = '7:24.1.1'
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile "com.squareup.okhttp3:okhttp:3.4.1"
+    compile group: 'com.squareup.retrofit2', name: 'converter-gson', version: '2.1.0'
     compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     compile "com.android.support:palette-v$androidSupportVersion"

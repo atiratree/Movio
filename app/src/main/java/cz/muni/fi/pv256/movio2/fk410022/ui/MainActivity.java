@@ -1,36 +1,42 @@
 package cz.muni.fi.pv256.movio2.fk410022.ui;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
 import cz.muni.fi.pv256.movio2.fk410022.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.model.store.FilmListStore;
 import cz.muni.fi.pv256.movio2.fk410022.model.store.FilmListType;
-import cz.muni.fi.pv256.movio2.fk410022.network.DownloadFilmListTask;
+import cz.muni.fi.pv256.movio2.fk410022.network.DownloadService;
 import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.MovieAdapter;
 import cz.muni.fi.pv256.movio2.fk410022.ui.film_detail.FilmDetailActivity;
 import cz.muni.fi.pv256.movio2.fk410022.ui.film_detail.FilmDetailFragment;
 import cz.muni.fi.pv256.movio2.fk410022.ui.listener.OnFilmClickListener;
-import cz.muni.fi.pv256.movio2.fk410022.ui.listener.OnFilmListDownload;
+import cz.muni.fi.pv256.movio2.fk410022.util.Constants;
 import cz.muni.fi.pv256.movio2.fk410022.util.Utils;
 
-public class MainActivity extends MainMenuActivity implements OnFilmClickListener, OnFilmListDownload {
+public class MainActivity extends BaseMenuActivity implements OnFilmClickListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private boolean isTablet;
     private FilmListStore filmListStore = FilmListStore.INSTANCE;
-    private Map<FilmListType, RecyclerView> recyclerMap = new HashMap<>(3);
-    private Map<FilmListType, DownloadFilmListTask.Cancelable> tasks = new HashMap<>();
+    private Map<FilmListType, RecyclerView> recyclerMap = new EnumMap<>(FilmListType.class);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +51,41 @@ public class MainActivity extends MainMenuActivity implements OnFilmClickListene
         recyclerMap.put(FilmListType.CURRENT_YEAR_POPULAR_INDEPENDENT_MOVIES, (RecyclerView) findViewById(R.id.recycler_view_current_year_popular_independent_movies));
         recyclerMap.put(FilmListType.HIGHLY_RATED_SCIFI_MOVIES, (RecyclerView) findViewById(R.id.recycler_view_popular_shows));
 
-        initializeRecyclerView(FilmListType.RECENT_POPULAR_MOVIES);
-        initializeRecyclerView(FilmListType.CURRENT_YEAR_POPULAR_INDEPENDENT_MOVIES);
-        initializeRecyclerView(FilmListType.HIGHLY_RATED_SCIFI_MOVIES);
+        initBroadcasts();
+
+        for (FilmListType type : recyclerMap.keySet()) {
+            initializeRecyclerView(type);
+        }
+    }
+
+    private void initBroadcasts() {
+        LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                FilmListType type = (FilmListType) intent.getSerializableExtra(Constants.FILM_LIST_TYPE);
+                refreshRecyclerView(type);
+            }
+        }, new IntentFilter(Constants.FILM_LIST_DOWNLOAD_FINISHED));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.refresh:
+                for (FilmListType type : recyclerMap.keySet()) {
+                    downloadMovies(type);
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -94,8 +132,14 @@ public class MainActivity extends MainMenuActivity implements OnFilmClickListene
         }
 
         if (!initialized && hasConnection) {
-            new DownloadFilmListTask(this, type).execute();
+            downloadMovies(type);
         }
+    }
+
+    private void downloadMovies(FilmListType type) {
+        Intent intent = new Intent(this, DownloadService.class);
+        intent.putExtra(Constants.FILM_LIST_TYPE, type);
+        startService(intent);
     }
 
     private void refreshRecyclerView(FilmListType type) {
@@ -106,24 +150,5 @@ public class MainActivity extends MainMenuActivity implements OnFilmClickListene
     private void refreshRecyclerView(FilmListType type, String errorMessage) {
         RecyclerView.Adapter adapter = new MovieAdapter(errorMessage, type, this);
         recyclerMap.get(type).setAdapter(adapter);
-    }
-
-    @Override
-    public void onStartDownload(FilmListType type, DownloadFilmListTask.Cancelable cancelable) {
-        tasks.put(type, cancelable);
-    }
-
-    @Override
-    public void onFinishedDownload(FilmListType type) {
-        tasks.remove(type);
-        refreshRecyclerView(type);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        for (DownloadFilmListTask.Cancelable cancelable : tasks.values()) {
-            cancelable.cancel();
-        }
     }
 }

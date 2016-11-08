@@ -28,7 +28,6 @@ public class GradientStar extends Drawable {
     private int startColor;
     private int endColor;
 
-
     private int paddingLeft = 7;
     private int paddingRight = 7;
     private int paddingTop = 7;

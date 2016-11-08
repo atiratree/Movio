@@ -3,7 +3,7 @@ package cz.muni.fi.pv256.movio2.fk410022.model.store;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +12,7 @@ import cz.muni.fi.pv256.movio2.fk410022.util.Utils;
 
 public enum FilmListStore {
     INSTANCE;
-    private final Map<FilmListType, List<Film>> mappings = new HashMap<>(2);
+    private final Map<FilmListType, List<Film>> mappings = new EnumMap<>(FilmListType.class);
 
     public void putAll(FilmListType type, Collection<Film> films) {
         Utils.checkNotNull(type);
