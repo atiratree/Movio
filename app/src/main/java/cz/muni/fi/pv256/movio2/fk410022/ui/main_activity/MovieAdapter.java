@@ -1,4 +1,4 @@
-package cz.muni.fi.pv256.movio2.fk410022.ui.adapter;
+package cz.muni.fi.pv256.movio2.fk410022.ui.main_activity;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -22,7 +22,6 @@ import java.util.List;
 import cz.muni.fi.pv256.movio2.fk410022.R;
 import cz.muni.fi.pv256.movio2.fk410022.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.ui.drawable.GradientStar;
-import cz.muni.fi.pv256.movio2.fk410022.ui.listener.OnFilmClickListener;
 import cz.muni.fi.pv256.movio2.fk410022.util.ColorUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.image.ImageHelper;
 
