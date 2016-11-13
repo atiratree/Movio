@@ -14,7 +14,7 @@
     <color name="my_theme_accent">#a450ff</color>
     <color name="my_theme_background">#82b1ff</color>
     <color name="palette_default">#595959</color>
-    <color name="white">#ffffff</color>
+    <color name="white">#fff</color>
     <color name="transparent_white">#bfffffff</color>
     <color name="star_start_gradient">#fd6b1b</color>
     <color name="star_end_gradient">#d5ba5a</color>

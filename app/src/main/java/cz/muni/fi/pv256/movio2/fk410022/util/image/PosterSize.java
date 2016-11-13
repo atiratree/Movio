@@ -9,7 +9,7 @@ enum PosterSize implements Size {
     W780(780),
     ORIGINAL(Integer.MAX_VALUE);
 
-    private int size;
+    private final int size;
 
     PosterSize(int size) {
         this.size = size;

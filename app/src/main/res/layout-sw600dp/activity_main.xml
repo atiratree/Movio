@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="cz.muni.fi.pv256.movio2.fk410022.ui.MainActivity">
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:baselineAligned="false"
+              android:orientation="horizontal"
+              android:paddingBottom="@dimen/activity_vertical_margin"
+              tools:context="cz.muni.fi.pv256.movio2.fk410022.ui.MainActivity">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -14,61 +14,57 @@
         android:layout_weight="1">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            tools:context="cz.muni.fi.pv256.movio2.fk410022.ui.MainActivity">
+                      xmlns:tools="http://schemas.android.com/tools"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="vertical"
+                      tools:context="cz.muni.fi.pv256.movio2.fk410022.ui.MainActivity">
 
             <TextView
                 android:id="@+id/popular_movies_title"
-                style="@style/TitleText"
-                android:layout_width="wrap_content"
+                style="@style/RecyclerViewWhiteTitleText"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:text="@string/recent_popular_movies" />
+                android:contentDescription="@string/accessibility_recent_popular_movies"
+                android:text="@string/recent_popular_movies"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view_popular_movies"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/poster_list_height" />
+                android:layout_height="@dimen/poster_height"/>
 
             <TextView
-                android:id="@+id/current_year_popular_independent_title"
-                style="@style/TitleText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingTop="15dp"
-                android:paddingRight="@dimen/activity_horizontal_margin" />
+                android:id="@+id/current_year_popular_independent_movies_title"
+                style="@style/RecyclerViewWhiteTitleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view_current_year_popular_independent_movies"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/poster_list_height" />
+                android:layout_height="@dimen/poster_height"/>
 
             <TextView
-                android:id="@+id/popular_shows_title"
-                style="@style/TitleText"
-                android:layout_width="wrap_content"
+                android:id="@+id/scifi_movies_title"
+                style="@style/RecyclerViewWhiteTitleText"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="15dp"
-                android:text="@string/highly_rated_scifi_movies" />
+                android:contentDescription="@string/accessibility_highly_rated_scifi_movies"
+                android:text="@string/highly_rated_scifi_movies"/>
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/recycler_view_popular_shows"
+                android:id="@+id/recycler_view_scifi_movies"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/poster_list_height" />
+                android:layout_height="@dimen/poster_height"/>
         </LinearLayout>
     </ScrollView>
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="5dp"
-        android:layout_weight="1" />
+                 android:id="@+id/fragment_container"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:layout_marginLeft="5dp"
+                 android:layout_marginStart="5dp"
+                 android:layout_weight="1"
+                 tools:ignore="InconsistentLayout"/>
 </LinearLayout>

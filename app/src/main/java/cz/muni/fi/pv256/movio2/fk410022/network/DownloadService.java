@@ -15,8 +15,8 @@ import cz.muni.fi.pv256.movio2.fk410022.model.store.FilmListStore;
 import cz.muni.fi.pv256.movio2.fk410022.model.store.FilmListType;
 import cz.muni.fi.pv256.movio2.fk410022.network.dto.Films;
 import cz.muni.fi.pv256.movio2.fk410022.network.exception.EmptyBodyException;
-import cz.muni.fi.pv256.movio2.fk410022.util.ApiUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.Constants;
+import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.NotificationUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.Utils;
 import retrofit2.Call;
@@ -56,7 +56,7 @@ public class DownloadService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (!Utils.isNetworkAvailable(getApplicationContext())) {
             if (!networkAlreadyFailed) {
-                notifUtils.fireNotification(ERROR_NOTIFICATION_ID, getString(R.string.turn_network_back_on_message), true);
+                makeTurnNetworkOnNotification();
                 networkAlreadyFailed = true;
             }
             return;
@@ -70,7 +70,7 @@ public class DownloadService extends IntentService {
         }
 
         try {
-            makeDownloadingNotification(type);
+            makeDownloadingNotification();
             retrofit2.Response<cz.muni.fi.pv256.movio2.fk410022.network.dto.Films> response = requestCall.execute();
             Films films = response.body();
             if (films == null) {
@@ -91,6 +91,12 @@ public class DownloadService extends IntentService {
         }
     }
 
+    private void makeTurnNetworkOnNotification() {
+        final NotificationCompat.Builder builder =
+                notifUtils.getNetworkSettingsotificationBuilder(getString(R.string.turn_network_back_on_message));
+        notifUtils.fireNotification(ERROR_NOTIFICATION_ID, builder, true);
+    }
+
     @Override
     public void onDestroy() {
         if (movieCount != 0) {
@@ -107,14 +113,14 @@ public class DownloadService extends IntentService {
                 Calendar today = Calendar.getInstance();
                 Calendar twoMonthsBack = Calendar.getInstance();
                 twoMonthsBack.add(Calendar.MONTH, -2);
-                requestCall = movieDbClient.listRecentPopular(ApiUtils.API_KEY,
-                        Utils.convertToString(twoMonthsBack.getTime()), Utils.convertToString(today.getTime()));
+                requestCall = movieDbClient.listRecentPopular(Constants.API_KEY,
+                        DateUtils.convertToString(twoMonthsBack.getTime()), DateUtils.convertToString(today.getTime()));
                 break;
             case CURRENT_YEAR_POPULAR_INDEPENDENT_MOVIES:
-                requestCall = movieDbClient.listCurrentYearPpularIndependent(ApiUtils.API_KEY, Utils.getCurrentYear());
+                requestCall = movieDbClient.listCurrentYearPpularIndependent(Constants.API_KEY, DateUtils.getCurrentYear());
                 break;
             case HIGHLY_RATED_SCIFI_MOVIES:
-                requestCall = movieDbClient.listHighlyRatedScifi(ApiUtils.API_KEY);
+                requestCall = movieDbClient.listHighlyRatedScifi(Constants.API_KEY);
                 break;
             default:
                 requestCall = null;
@@ -124,7 +130,7 @@ public class DownloadService extends IntentService {
 
     private MovieDbClient buildClient() {
         return new Retrofit.Builder()
-                .baseUrl(ApiUtils.BASE_URL)
+                .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(MovieDbClient.class);
@@ -133,11 +139,11 @@ public class DownloadService extends IntentService {
     private void makeDownloadedNotification(int countIncrement, boolean strong) {
         movieCount += countIncrement;
         notifUtils.fireNotification(DOWNLOADED_NOTIFICATION_ID,
-                getString(R.string.downloaded_message, movieCount), strong);
+                getResources().getQuantityString(R.plurals.downloaded_message, movieCount, movieCount), strong);
     }
 
-    private void makeDownloadingNotification(FilmListType type) {
-        String message = getString(R.string.downloading_message, type.getReadableName());
+    private void makeDownloadingNotification() {
+        String message = getString(R.string.downloading_message);
 
         NotificationCompat.Builder builder = notifUtils.getMainActivityNotificationBuilder(message)
                 .setAutoCancel(false)

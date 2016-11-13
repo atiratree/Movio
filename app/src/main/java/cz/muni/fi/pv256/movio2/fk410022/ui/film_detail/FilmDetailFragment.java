@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
 import cz.muni.fi.pv256.movio2.fk410022.model.Film;
-import cz.muni.fi.pv256.movio2.fk410022.util.Utils;
+import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.image.ImageHelper;
 
 import static cz.muni.fi.pv256.movio2.fk410022.ui.film_detail.FilmDetailActivity.FILM_PARAM;
@@ -38,8 +38,13 @@ public class FilmDetailFragment extends Fragment {
         }
 
         if (film != null) {
+            getActivity().setTitle(film.getTitle());
+
             ImageView poster = (ImageView) view.findViewById(R.id.poster);
             ImageView backdrop = (ImageView) view.findViewById(R.id.backdrop);
+
+            poster.setContentDescription(getString(R.string.accessibility_poster_of, film.getTitle()));
+            backdrop.setContentDescription(getString(R.string.accessibility_backdrop_of, film.getTitle()));
 
             ImageHelper.displayPoster(film, poster);
             ImageHelper.displayBackdrop(film, backdrop);
@@ -48,7 +53,7 @@ public class FilmDetailFragment extends Fragment {
             title.setText(film.getTitle());
 
             TextView releaseDate = (TextView) view.findViewById(R.id.release_date);
-            releaseDate.setText(Utils.convertToReadableString(film.getReleaseDate()));
+            releaseDate.setText(DateUtils.convertToReadableString(film.getReleaseDate()));
 
             TextView description = (TextView) view.findViewById(R.id.description);
             description.setText(String.valueOf(film.getDescription()));

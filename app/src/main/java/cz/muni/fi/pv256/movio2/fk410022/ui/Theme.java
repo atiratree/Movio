@@ -8,8 +8,8 @@ import cz.muni.fi.pv256.movio2.fk410022.R;
 public enum Theme {
     APP_THEME(R.style.AppTheme), MY_THEME(R.style.MyTheme);
 
-    private static SparseArray<Theme> sparseArray;
-    private int value;
+    private static final SparseArray<Theme> sparseArray;
+    private final int value;
 
     static {
         Theme[] values = Theme.values();

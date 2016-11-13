@@ -29,6 +29,7 @@ import cz.muni.fi.pv256.movio2.fk410022.ui.film_detail.FilmDetailActivity;
 import cz.muni.fi.pv256.movio2.fk410022.ui.film_detail.FilmDetailFragment;
 import cz.muni.fi.pv256.movio2.fk410022.ui.listener.OnFilmClickListener;
 import cz.muni.fi.pv256.movio2.fk410022.util.Constants;
+import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.Utils;
 
 public class MainActivity extends BaseMenuActivity implements OnFilmClickListener {
@@ -44,12 +45,21 @@ public class MainActivity extends BaseMenuActivity implements OnFilmClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ((TextView) findViewById(R.id.current_year_popular_independent_title))
-                .setText(getString(R.string.current_year_popular_independent_movies, Utils.getCurrentYear()));
+        initIndependentTitle();
+        initRecyclerViews();
+    }
 
+    private void initIndependentTitle() {
+        int year = DateUtils.getCurrentYear();
+        TextView independentMoviesTitle = (TextView) findViewById(R.id.current_year_popular_independent_movies_title);
+        independentMoviesTitle.setText(getString(R.string.current_year_popular_independent_movies, year));
+        independentMoviesTitle.setContentDescription(getString(R.string.accessibility_current_year_popular_independent_movies, year));
+    }
+
+    private void initRecyclerViews() {
         recyclerMap.put(FilmListType.RECENT_POPULAR_MOVIES, (RecyclerView) findViewById(R.id.recycler_view_popular_movies));
         recyclerMap.put(FilmListType.CURRENT_YEAR_POPULAR_INDEPENDENT_MOVIES, (RecyclerView) findViewById(R.id.recycler_view_current_year_popular_independent_movies));
-        recyclerMap.put(FilmListType.HIGHLY_RATED_SCIFI_MOVIES, (RecyclerView) findViewById(R.id.recycler_view_popular_shows));
+        recyclerMap.put(FilmListType.HIGHLY_RATED_SCIFI_MOVIES, (RecyclerView) findViewById(R.id.recycler_view_scifi_movies));
 
         initBroadcasts();
 
@@ -143,12 +153,12 @@ public class MainActivity extends BaseMenuActivity implements OnFilmClickListene
     }
 
     private void refreshRecyclerView(FilmListType type) {
-        RecyclerView.Adapter adapter = new MovieAdapter(filmListStore.getAll(type), type, this, this);
+        RecyclerView.Adapter adapter = new MovieAdapter(filmListStore.getAll(type), this, this);
         recyclerMap.get(type).setAdapter(adapter);
     }
 
     private void refreshRecyclerView(FilmListType type, String errorMessage) {
-        RecyclerView.Adapter adapter = new MovieAdapter(errorMessage, type, this);
+        RecyclerView.Adapter adapter = new MovieAdapter(errorMessage, this);
         recyclerMap.get(type).setAdapter(adapter);
     }
 }

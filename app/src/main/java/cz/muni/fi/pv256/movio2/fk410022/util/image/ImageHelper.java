@@ -7,7 +7,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 
 import cz.muni.fi.pv256.movio2.fk410022.model.Film;
-import cz.muni.fi.pv256.movio2.fk410022.util.ApiUtils;
+import cz.muni.fi.pv256.movio2.fk410022.util.Constants;
 
 public class ImageHelper {
     public static void displayPoster(Film film, ImageView view) {
@@ -35,7 +35,7 @@ public class ImageHelper {
     }
 
     private static String makeFinalPath(String idPart, Size size) {
-        return String.format("%s%s%s", ApiUtils.IMAGE_BASE_URL, size.getUrlPart(), idPart);
+        return String.format("%s%s%s", Constants.IMAGE_BASE_URL, size.getUrlPart(), idPart);
     }
 
     private static void loadImage(String idPart, Size size) {
