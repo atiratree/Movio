@@ -1,6 +1,6 @@
 package cz.muni.fi.pv256.movio2.fk410022.network.dto;
 
-import cz.muni.fi.pv256.movio2.fk410022.util.Utils;
+import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 
 public class Film {
     private Long id;
@@ -81,7 +81,7 @@ public class Film {
         film.setId(id);
         film.setTitle(original_title);
         film.setDescription(overview);
-        film.setReleaseDate(Utils.convertToDate(release_date));
+        film.setReleaseDate(DateUtils.convertToDate(release_date));
         film.setPosterPathId(poster_path);
         film.setBackdropPathId(backdrop_path);
         film.setPopularity(popularity);
