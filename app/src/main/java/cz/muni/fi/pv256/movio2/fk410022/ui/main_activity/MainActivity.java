@@ -1,4 +1,4 @@
-package cz.muni.fi.pv256.movio2.fk410022.ui;
+package cz.muni.fi.pv256.movio2.fk410022.ui.main_activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.annimon.stream.Stream;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 
@@ -24,10 +25,9 @@ import cz.muni.fi.pv256.movio2.fk410022.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.model.store.FilmListStore;
 import cz.muni.fi.pv256.movio2.fk410022.model.store.FilmListType;
 import cz.muni.fi.pv256.movio2.fk410022.network.DownloadService;
-import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.MovieAdapter;
+import cz.muni.fi.pv256.movio2.fk410022.ui.BaseMenuActivity;
 import cz.muni.fi.pv256.movio2.fk410022.ui.film_detail.FilmDetailActivity;
 import cz.muni.fi.pv256.movio2.fk410022.ui.film_detail.FilmDetailFragment;
-import cz.muni.fi.pv256.movio2.fk410022.ui.listener.OnFilmClickListener;
 import cz.muni.fi.pv256.movio2.fk410022.util.Constants;
 import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.Utils;
@@ -63,9 +63,7 @@ public class MainActivity extends BaseMenuActivity implements OnFilmClickListene
 
         initBroadcasts();
 
-        for (FilmListType type : recyclerMap.keySet()) {
-            initializeRecyclerView(type);
-        }
+        Stream.of(recyclerMap.keySet()).forEach(this::initializeRecyclerView);
     }
 
     private void initBroadcasts() {
@@ -89,9 +87,7 @@ public class MainActivity extends BaseMenuActivity implements OnFilmClickListene
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refresh:
-                for (FilmListType type : recyclerMap.keySet()) {
-                    downloadMovies(type);
-                }
+                Stream.of(recyclerMap.keySet()).forEach(this::downloadMovies);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -9,7 +9,7 @@ import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
-import cz.muni.fi.pv256.movio2.fk410022.ui.MainActivity;
+import cz.muni.fi.pv256.movio2.fk410022.ui.main_activity.MainActivity;
 
 public class NotificationUtils {
 
