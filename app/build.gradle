@@ -6,6 +6,7 @@ android {
 
     defaultConfig {
         applicationId "cz.muni.fi.pv256.movio2.fk410022"
+        manifestPlaceholders = [ applicationLabel:"@string/app_name"]
         minSdkVersion 16
         targetSdkVersion 24
         versionCode 1
@@ -13,6 +14,7 @@ android {
         jackOptions {
             enabled true
         }
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -24,13 +26,18 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            applicationIdSuffix ".debug"
+            versionNameSuffix '-DEBUG'
+            manifestPlaceholders = [ applicationLabel:"FK410022 Debug"]
+        }
     }
 }
 
 dependencies {
     ext.androidSupportVersion = '7:24.1.1'
-    ext.androidSupportDesignVersion = '24.1.1' // check thoroughly if newer versions don't break anything
-
+    // check thoroughly if newer versions don't break anything
+    ext.androidSupportDesignVersion = '24.1.1'
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -50,4 +57,7 @@ dependencies {
     compile "com.android.support.constraint:constraint-layout:1.0.0-alpha9"
 
     compile 'com.annimon:stream:1.1.3' // https://github.com/aNNiMON/Lightweight-Stream-API
+
+    debugCompile 'com.facebook.stetho:stetho:1.4.1'
+    debugCompile 'com.facebook.stetho:stetho-okhttp3:1.4.1'
 }

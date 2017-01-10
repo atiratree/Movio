@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
-import cz.muni.fi.pv256.movio2.fk410022.model.Film;
+import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.image.ImageHelper;
 

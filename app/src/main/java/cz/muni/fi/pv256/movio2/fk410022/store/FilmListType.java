@@ -1,4 +1,4 @@
-package cz.muni.fi.pv256.movio2.fk410022.model.store;
+package cz.muni.fi.pv256.movio2.fk410022.store;
 
 import android.support.annotation.NonNull;
 

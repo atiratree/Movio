@@ -20,7 +20,7 @@ import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import java.util.List;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
-import cz.muni.fi.pv256.movio2.fk410022.model.Film;
+import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.ui.drawable.GradientStar;
 import cz.muni.fi.pv256.movio2.fk410022.util.ColorUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.image.ImageHelper;

@@ -9,10 +9,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import java.util.Calendar;
 import java.util.List;
 
+import cz.muni.fi.pv256.movio2.fk410022.BuildConfig;
+import cz.muni.fi.pv256.movio2.fk410022.DebugClass;
 import cz.muni.fi.pv256.movio2.fk410022.R;
-import cz.muni.fi.pv256.movio2.fk410022.model.Film;
-import cz.muni.fi.pv256.movio2.fk410022.model.store.FilmListStore;
-import cz.muni.fi.pv256.movio2.fk410022.model.store.FilmListType;
+import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
+import cz.muni.fi.pv256.movio2.fk410022.store.FilmListStore;
+import cz.muni.fi.pv256.movio2.fk410022.store.FilmListType;
 import cz.muni.fi.pv256.movio2.fk410022.network.dto.Films;
 import cz.muni.fi.pv256.movio2.fk410022.network.exception.EmptyBodyException;
 import cz.muni.fi.pv256.movio2.fk410022.util.Constants;
@@ -129,11 +131,15 @@ public class DownloadService extends IntentService {
     }
 
     private MovieDbClient buildClient() {
-        return new Retrofit.Builder()
+        final Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                 .baseUrl(Constants.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(MovieDbClient.class);
+                .addConverterFactory(GsonConverterFactory.create());
+
+        if (BuildConfig.DEBUG) {
+            DebugClass.buildDebugClient(retrofitBuilder);
+        }
+
+        return retrofitBuilder.build().create(MovieDbClient.class);
     }
 
     private void makeDownloadedNotification(int countIncrement, boolean strong) {

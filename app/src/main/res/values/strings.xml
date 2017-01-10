@@ -1,5 +1,4 @@
 <resources  xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">FK410022</string>
     <string name="movio">Movio</string>
     <string name="change_theme">Change Theme</string>
     <string name="refresh">Refresh Movies</string>
@@ -7,6 +6,7 @@
     <string name="no_data">No Data Received</string>
     <string name="downloading">Downloading…</string>
     <string name="recent_popular_movies">Recent Popular Movies</string>
+    <string name="favorites">Favorites</string>
     <string name="highly_rated_scifi_movies">Highly Rated Sci-fi Movies</string>
     <string name="current_year_popular_independent_movies"  tools:ignore="PluralsCandidate">%1$d Popular Independent Movies</string>
     <string name="empty_body_message">Received Empty body!</string>
@@ -25,6 +25,7 @@
     <string name="accessibility_recent_popular_movies">Recent Popular Movies. Scrollable horizontal list bellow</string>
     <string name="accessibility_current_year_popular_independent_movies" tools:ignore="PluralsCandidate">%1$d Popular Independent Movies. Scrollable horizontal list bellow</string>
     <string name="accessibility_highly_rated_scifi_movies">Highly Rated Sci-fi Movies. Scrollable horizontal list bellow</string>
+    <string name="accessibility_favorites">Favorites. Scrollable horizontal list bellow</string>
 
     <plurals name="downloaded_message">
         <item quantity="one">Downloaded %d film</item>

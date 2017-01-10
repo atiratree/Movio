@@ -6,7 +6,7 @@ import android.widget.ImageView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 
-import cz.muni.fi.pv256.movio2.fk410022.model.Film;
+import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.util.Constants;
 
 public class ImageHelper {

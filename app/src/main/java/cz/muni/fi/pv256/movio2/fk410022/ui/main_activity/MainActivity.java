@@ -21,10 +21,10 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
-import cz.muni.fi.pv256.movio2.fk410022.model.Film;
-import cz.muni.fi.pv256.movio2.fk410022.model.store.FilmListStore;
-import cz.muni.fi.pv256.movio2.fk410022.model.store.FilmListType;
+import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.network.DownloadService;
+import cz.muni.fi.pv256.movio2.fk410022.store.FilmListStore;
+import cz.muni.fi.pv256.movio2.fk410022.store.FilmListType;
 import cz.muni.fi.pv256.movio2.fk410022.ui.BaseMenuActivity;
 import cz.muni.fi.pv256.movio2.fk410022.ui.film_detail.FilmDetailActivity;
 import cz.muni.fi.pv256.movio2.fk410022.ui.film_detail.FilmDetailFragment;
