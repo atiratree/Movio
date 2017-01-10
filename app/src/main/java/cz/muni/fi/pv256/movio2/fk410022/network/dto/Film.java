@@ -76,8 +76,8 @@ public class Film {
         this.vote_average = vote_average;
     }
 
-    public cz.muni.fi.pv256.movio2.fk410022.model.Film toEntity() {
-        cz.muni.fi.pv256.movio2.fk410022.model.Film film = new cz.muni.fi.pv256.movio2.fk410022.model.Film();
+    public cz.muni.fi.pv256.movio2.fk410022.db.model.Film toEntity() {
+        cz.muni.fi.pv256.movio2.fk410022.db.model.Film film = new cz.muni.fi.pv256.movio2.fk410022.db.model.Film();
         film.setId(id);
         film.setTitle(original_title);
         film.setDescription(overview);

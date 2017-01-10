@@ -1,4 +1,4 @@
-package cz.muni.fi.pv256.movio2.fk410022.model.store;
+package cz.muni.fi.pv256.movio2.fk410022.store;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,7 +7,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import cz.muni.fi.pv256.movio2.fk410022.model.Film;
+import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.util.Utils;
 
 public enum FilmListStore {

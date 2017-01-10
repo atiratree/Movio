@@ -1,9 +1,16 @@
-package cz.muni.fi.pv256.movio2.fk410022.model;
+package cz.muni.fi.pv256.movio2.fk410022.db.model;
 
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.sql.Timestamp;
 import java.util.Date;
+
+import cz.muni.fi.pv256.movio2.fk410022.db.provider.CursorHelper;
+
+import static cz.muni.fi.pv256.movio2.fk410022.db.provider.DbContract.Film.*;
 
 public class Film implements Parcelable {
     private Long id;
@@ -14,8 +21,23 @@ public class Film implements Parcelable {
     private String backdropPathId;
     private double popularity;
     private double rating;
+    private boolean favorite;
 
     public Film() {
+    }
+
+    public Film (Cursor cursor){
+        CursorHelper cursorHelper = new CursorHelper(cursor);
+
+        id = cursorHelper.getLong(ID);
+        title = cursorHelper.getString(TITLE);
+        description = cursorHelper.getString(DESCRIPTION);
+        releaseDate = cursorHelper.getTimestamp(RELEASE_DATE);
+        posterPathId = cursorHelper.getString(POSTER_PATH_ID);
+        backdropPathId = cursorHelper.getString(BACKDROP_PATH_ID);
+        popularity = cursorHelper.getDouble(POPULARITY);
+        rating = cursorHelper.getDouble(RATING);
+        favorite = cursorHelper.getBoolean(FAVORITE);
     }
 
     public Film(Parcel pc) {
@@ -27,6 +49,7 @@ public class Film implements Parcelable {
         backdropPathId = pc.readString();
         popularity = pc.readDouble();
         rating = pc.readDouble();
+        favorite = pc.readInt() != 0;
     }
 
     public Long getId() {
@@ -93,6 +116,14 @@ public class Film implements Parcelable {
         this.rating = rating;
     }
 
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
+    }
+
     public static Creator<Film> getCREATOR() {
         return CREATOR;
     }
@@ -112,6 +143,7 @@ public class Film implements Parcelable {
         parcel.writeString(backdropPathId);
         parcel.writeDouble(popularity);
         parcel.writeDouble(rating);
+        parcel.writeInt(favorite ? 1 : 0);
     }
 
     public static final Parcelable.Creator<Film> CREATOR = new Parcelable.Creator<Film>() {
@@ -123,6 +155,21 @@ public class Film implements Parcelable {
             return new Film[size];
         }
     };
+
+    public ContentValues toValues() {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ID, getId());
+        contentValues.put(TITLE, getTitle());
+        contentValues.put(DESCRIPTION, getTitle());
+        contentValues.put(RELEASE_DATE, new Timestamp(getReleaseDate().getTime()).toString());
+        contentValues.put(POSTER_PATH_ID, getPosterPathId());
+        contentValues.put(BACKDROP_PATH_ID, getBackdropPathId());
+        contentValues.put(POPULARITY, getPopularity());
+        contentValues.put(RATING, getRating());
+        contentValues.put(FAVORITE, isFavorite());
+
+        return contentValues;
+    }
 
     @Override
     public boolean equals(Object o) {
