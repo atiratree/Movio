@@ -78,7 +78,7 @@ public class Film {
 
     public cz.muni.fi.pv256.movio2.fk410022.db.model.Film toEntity() {
         cz.muni.fi.pv256.movio2.fk410022.db.model.Film film = new cz.muni.fi.pv256.movio2.fk410022.db.model.Film();
-        film.setId(id);
+        film.setMovieDbId(id);
         film.setTitle(original_title);
         film.setDescription(overview);
         film.setReleaseDate(DateUtils.convertToDate(release_date));

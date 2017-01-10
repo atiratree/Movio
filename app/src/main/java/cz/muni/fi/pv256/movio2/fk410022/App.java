@@ -2,6 +2,7 @@ package cz.muni.fi.pv256.movio2.fk410022;
 
 import android.app.Application;
 
+import com.activeandroid.ActiveAndroid;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -19,6 +20,8 @@ public class App extends Application {
         }
 
         SizeHelper.init(getApplicationContext());
+
+        ActiveAndroid.initialize(this);
 
         // global configuration and initialization of ImageLoader
         DisplayImageOptions options = new DisplayImageOptions.Builder()
