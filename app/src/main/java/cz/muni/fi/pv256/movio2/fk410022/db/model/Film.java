@@ -1,47 +1,49 @@
 package cz.muni.fi.pv256.movio2.fk410022.db.model;
 
-import android.content.ContentValues;
-import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.sql.Timestamp;
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+
 import java.util.Date;
 
-import cz.muni.fi.pv256.movio2.fk410022.db.provider.CursorHelper;
+import cz.muni.fi.pv256.movio2.fk410022.db.provider.DbContract;
 
-import static cz.muni.fi.pv256.movio2.fk410022.db.provider.DbContract.Film.*;
+@Table(name = DbContract.Film.TABLE, id = DbContract.BaseEntity.ID)
+public class Film extends Model implements Parcelable {
 
-public class Film implements Parcelable {
-    private Long id;
+    @Column(name = DbContract.Film.MOVIE_DB_ID)
+    private Long movieDbId;
+
+    @Column(name = DbContract.Film.TITLE)
     private String title;
+
+    @Column(name = DbContract.Film.DESCRIPTION)
     private String description;
+
+    @Column(name = DbContract.Film.RELEASE_DATE)
     private Date releaseDate;
+
+    @Column(name = DbContract.Film.POSTER_PATH_ID)
     private String posterPathId;
+
+    @Column(name = DbContract.Film.BACKDROP_PATH_ID)
     private String backdropPathId;
+
+    @Column(name = DbContract.Film.POPULARITY)
     private double popularity;
+
+    @Column(name = DbContract.Film.RATING)
     private double rating;
-    private boolean favorite;
 
     public Film() {
-    }
-
-    public Film (Cursor cursor){
-        CursorHelper cursorHelper = new CursorHelper(cursor);
-
-        id = cursorHelper.getLong(ID);
-        title = cursorHelper.getString(TITLE);
-        description = cursorHelper.getString(DESCRIPTION);
-        releaseDate = cursorHelper.getTimestamp(RELEASE_DATE);
-        posterPathId = cursorHelper.getString(POSTER_PATH_ID);
-        backdropPathId = cursorHelper.getString(BACKDROP_PATH_ID);
-        popularity = cursorHelper.getDouble(POPULARITY);
-        rating = cursorHelper.getDouble(RATING);
-        favorite = cursorHelper.getBoolean(FAVORITE);
+        super();
     }
 
     public Film(Parcel pc) {
-        id = pc.readLong();
+        movieDbId = pc.readLong();
         title = pc.readString();
         description = pc.readString();
         releaseDate = new Date(pc.readLong());
@@ -49,15 +51,14 @@ public class Film implements Parcelable {
         backdropPathId = pc.readString();
         popularity = pc.readDouble();
         rating = pc.readDouble();
-        favorite = pc.readInt() != 0;
     }
 
-    public Long getId() {
-        return id;
+    public Long getMovieDbId() {
+        return movieDbId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setMovieDbId(Long movieDbId) {
+        this.movieDbId = movieDbId;
     }
 
     public String getTitle() {
@@ -116,14 +117,6 @@ public class Film implements Parcelable {
         this.rating = rating;
     }
 
-    public boolean isFavorite() {
-        return favorite;
-    }
-
-    public void setFavorite(boolean favorite) {
-        this.favorite = favorite;
-    }
-
     public static Creator<Film> getCREATOR() {
         return CREATOR;
     }
@@ -135,7 +128,7 @@ public class Film implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int flags) {
-        parcel.writeLong(id);
+        parcel.writeLong(getMovieDbId());
         parcel.writeString(title);
         parcel.writeString(description);
         parcel.writeLong(releaseDate.getTime());
@@ -143,7 +136,6 @@ public class Film implements Parcelable {
         parcel.writeString(backdropPathId);
         parcel.writeDouble(popularity);
         parcel.writeDouble(rating);
-        parcel.writeInt(favorite ? 1 : 0);
     }
 
     public static final Parcelable.Creator<Film> CREATOR = new Parcelable.Creator<Film>() {
@@ -156,34 +148,53 @@ public class Film implements Parcelable {
         }
     };
 
-    public ContentValues toValues() {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(ID, getId());
-        contentValues.put(TITLE, getTitle());
-        contentValues.put(DESCRIPTION, getTitle());
-        contentValues.put(RELEASE_DATE, new Timestamp(getReleaseDate().getTime()).toString());
-        contentValues.put(POSTER_PATH_ID, getPosterPathId());
-        contentValues.put(BACKDROP_PATH_ID, getBackdropPathId());
-        contentValues.put(POPULARITY, getPopularity());
-        contentValues.put(RATING, getRating());
-        contentValues.put(FAVORITE, isFavorite());
+    public boolean movieDbIdEquals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Film)) return false;
+        if (!super.equals(o)) return false;
 
-        return contentValues;
+        Film film = (Film) o;
+
+        return movieDbId != null ? !movieDbId.equals(film.movieDbId) : film.movieDbId != null;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Film)) return false;
+        if (!super.equals(o)) return false;
 
         Film film = (Film) o;
 
-        return id != null ? id.equals(film.id) : film.id == null;
+        if (Double.compare(film.popularity, popularity) != 0) return false;
+        if (Double.compare(film.rating, rating) != 0) return false;
+        if (movieDbId != null ? !movieDbId.equals(film.movieDbId) : film.movieDbId != null)
+            return false;
+        if (title != null ? !title.equals(film.title) : film.title != null) return false;
+        if (description != null ? !description.equals(film.description) : film.description != null)
+            return false;
+        if (releaseDate != null ? !releaseDate.equals(film.releaseDate) : film.releaseDate != null)
+            return false;
+        if (posterPathId != null ? !posterPathId.equals(film.posterPathId) : film.posterPathId != null)
+            return false;
+        return backdropPathId != null ? backdropPathId.equals(film.backdropPathId) : film.backdropPathId == null;
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        int result = super.hashCode();
+        long temp;
+        result = 31 * result + (movieDbId != null ? movieDbId.hashCode() : 0);
+        result = 31 * result + (title != null ? title.hashCode() : 0);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (releaseDate != null ? releaseDate.hashCode() : 0);
+        result = 31 * result + (posterPathId != null ? posterPathId.hashCode() : 0);
+        result = 31 * result + (backdropPathId != null ? backdropPathId.hashCode() : 0);
+        temp = Double.doubleToLongBits(popularity);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(rating);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 }
 

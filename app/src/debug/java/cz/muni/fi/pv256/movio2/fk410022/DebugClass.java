@@ -12,12 +12,30 @@ import retrofit2.Retrofit;
 
 public class DebugClass {
 
-    public static void initialize(Context context){
+    private static final boolean DEBUG_STETHO = true;
+    private static final boolean DEBUG_HTTP_CLIENT = false;
+
+    public static void initialize(Context context) {
         initStrictMode();
-        Stetho.initializeWithDefaults(context);
+        initStetho(context);
     }
 
-    public static void initStrictMode() {
+    public static void buildDebugClient(Retrofit.Builder retrofitBuilder) {
+        if (DEBUG_STETHO && DEBUG_HTTP_CLIENT) {
+            final OkHttpClient client = new OkHttpClient.Builder()
+                    .addNetworkInterceptor(new StethoInterceptor())
+                    .build();
+            retrofitBuilder.client(client);
+        }
+    }
+
+    private static void initStetho(Context context) {
+        if (DEBUG_STETHO) {
+            Stetho.initializeWithDefaults(context);
+        }
+    }
+
+    private static void initStrictMode() {
         StrictMode.ThreadPolicy.Builder tpb = new StrictMode.ThreadPolicy.Builder()
                 .detectAll()
                 .penaltyLog();
@@ -33,13 +51,6 @@ public class DebugClass {
             vmpb.detectLeakedClosableObjects();
         }
         StrictMode.setVmPolicy(vmpb.build());
-    }
-
-    public static void buildDebugClient(Retrofit.Builder retrofitBuilder){
-        final OkHttpClient client = new OkHttpClient.Builder()
-                .addNetworkInterceptor(new StethoInterceptor())
-                .build();
-        retrofitBuilder.client(client);
     }
 }
 
