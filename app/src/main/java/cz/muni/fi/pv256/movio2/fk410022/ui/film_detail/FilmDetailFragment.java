@@ -1,10 +1,13 @@
 package cz.muni.fi.pv256.movio2.fk410022.ui.film_detail;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +17,12 @@ import android.widget.TextView;
 import com.annimon.stream.Stream;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
+import cz.muni.fi.pv256.movio2.fk410022.db.manager.FavoritesManager;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Favorite;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
-import cz.muni.fi.pv256.movio2.fk410022.ui.loaders.FavoritesLoader;
+import cz.muni.fi.pv256.movio2.fk410022.ui.loaders.FavoriteLoader;
 import cz.muni.fi.pv256.movio2.fk410022.ui.loaders.FilmLoader;
+import cz.muni.fi.pv256.movio2.fk410022.util.ColorUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.image.ImageHelper;
 
@@ -49,17 +54,18 @@ public class FilmDetailFragment extends Fragment implements FilmLoader.FilmListe
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        getLoaderManager().initLoader(FILM_LOADER, getArguments(), new FilmLoader(this, context));
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_film_detail, container, false);
         fab = (FloatingActionButton) view.findViewById(R.id.add_to_favorites);
+        fab.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        getLoaderManager().initLoader(FILM_LOADER, getArguments(), new FilmLoader(this, context));
     }
 
     @Override
@@ -76,23 +82,27 @@ public class FilmDetailFragment extends Fragment implements FilmLoader.FilmListe
     }
 
     @Override
-    public void onLoadFinished(final Film film) {
-        renderFilm(film);
+    public void onLoadFinished(final Film entity) {
+        renderFilm(entity);
         Bundle bundle = new Bundle();
-        bundle.putLong(FavoritesLoader.FILM_ID_PARAM, film.getId());
-        getLoaderManager().initLoader(FAVORITES_LOADER, bundle, new FavoritesLoader(favorite -> {
+        bundle.putLong(FavoriteLoader.FILM_ID_PARAM, entity.getId());
+        getLoaderManager().initLoader(FAVORITES_LOADER, bundle, new FavoriteLoader(favorite -> {
             if (fab != null) {
                 boolean isFavorite = favorite != null && favorite.isFavorite();
                 fab.setImageResource(isFavorite ? R.drawable.ic_clear_white_24dp : R.drawable.ic_add_white_24dp);
 
+                int backgroundColor = ContextCompat.getColor(context,
+                        isFavorite ? R.color.fab_warning : ColorUtils.getThemeAccentResourceId(context));
+                fab.setBackgroundTintList(ColorStateList.valueOf(backgroundColor));
+
                 fab.setOnClickListener(v -> {
                     if (isFavorite) {
-                        favorite.delete();
+                        FavoritesManager.delete(favorite);
                     } else {
                         Favorite newFavorite = new Favorite();
                         newFavorite.setFavorite(true);
-                        newFavorite.setFilm(film);
-                        newFavorite.save();
+                        newFavorite.setFilm(entity);
+                        FavoritesManager.save(newFavorite);
                     }
                 });
             }
@@ -120,6 +130,8 @@ public class FilmDetailFragment extends Fragment implements FilmLoader.FilmListe
 
             TextView description = (TextView) view.findViewById(R.id.description);
             description.setText(String.valueOf(film.getDescription()));
+
+            FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.add_to_favorites);
         }
     }
 }

@@ -5,6 +5,7 @@
     <string name="no_connection">No Connection</string>
     <string name="no_data">No Data Received</string>
     <string name="downloading">Downloading…</string>
+    <string name="no_favorites">Add movies to favorites to see this tab.</string>
     <string name="recent_popular_movies">Recent Popular Movies</string>
     <string name="favorites">Favorites</string>
     <string name="highly_rated_scifi_movies">Highly Rated Sci-fi Movies</string>
@@ -14,6 +15,10 @@
     <string name="error_message">Downloading of %1$s failed! Error occurred: %2$s</string>
     <string name="turn_network_back_on_message">Network unavailable. Tap to show WiFi settings.</string>
     <string name="rating_value">%1$.1f</string>
+    <string name="show_favorites">Show Favorites</string>
+    <string name="show_discover">Show All</string>
+
+
 
     <string name="accessibility_star">Star, add to favorites</string>
     <string name="accessibility_add_to_favorites">Add to favorites</string>

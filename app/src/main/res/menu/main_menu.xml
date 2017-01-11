@@ -7,4 +7,16 @@
         android:icon="@drawable/ic_sync_white_24dp"
         android:title="@string/refresh"
         app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/show_favorites"
+        android:title="@string/show_favorites"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/show_discover"
+        android:visible="false"
+        android:title="@string/show_discover"
+        app:showAsAction="ifRoom|withText" />
+
 </menu>

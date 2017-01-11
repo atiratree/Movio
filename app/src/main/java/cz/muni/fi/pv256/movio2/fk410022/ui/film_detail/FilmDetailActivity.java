@@ -16,14 +16,14 @@ public class FilmDetailActivity extends BaseMenuActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_film_detail);
 
-        if (findViewById(R.id.fragment_container) != null) {
+        if (findViewById(R.id.detail_fragment_container) != null) {
             if (savedInstanceState != null) {
                 return;
             }
 
-            FilmDetailFragment firstFragment = FilmDetailFragment.newInstance(getIntent().getLongExtra(FILM_ID_PARAM, -1));
+            FilmDetailFragment detailFragment = FilmDetailFragment.newInstance(getIntent().getLongExtra(FILM_ID_PARAM, -1));
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, firstFragment).commit();
+                    .add(R.id.detail_fragment_container, detailFragment).commit();
         }
     }
 }
