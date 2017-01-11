@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -51,14 +52,14 @@ public class MainActivity extends BaseMenuActivity implements OnFilmClickListene
 
     private void initIndependentTitle() {
         int year = DateUtils.getCurrentYear();
-        TextView independentMoviesTitle = (TextView) findViewById(R.id.current_year_popular_independent_movies_title);
-        independentMoviesTitle.setText(getString(R.string.current_year_popular_independent_movies, year));
-        independentMoviesTitle.setContentDescription(getString(R.string.accessibility_current_year_popular_independent_movies, year));
+        TextView independentMoviesTitle = (TextView) findViewById(R.id.current_year_popular_animated_movies_title);
+        independentMoviesTitle.setText(getString(R.string.current_year_popular_animated_movies, year));
+        independentMoviesTitle.setContentDescription(getString(R.string.accessibility_current_year_popular_animated_movies, year));
     }
 
     private void initRecyclerViews() {
         recyclerMap.put(FilmListType.RECENT_POPULAR_MOVIES, (RecyclerView) findViewById(R.id.recycler_view_popular_movies));
-        recyclerMap.put(FilmListType.CURRENT_YEAR_POPULAR_INDEPENDENT_MOVIES, (RecyclerView) findViewById(R.id.recycler_view_current_year_popular_independent_movies));
+        recyclerMap.put(FilmListType.CURRENT_YEAR_POPULAR_ANIMATED_MOVIES, (RecyclerView) findViewById(R.id.recycler_view_current_year_popular_animated_movies));
         recyclerMap.put(FilmListType.HIGHLY_RATED_SCIFI_MOVIES, (RecyclerView) findViewById(R.id.recycler_view_scifi_movies));
 
         initBroadcasts();
@@ -98,15 +99,15 @@ public class MainActivity extends BaseMenuActivity implements OnFilmClickListene
     public void onItemClick(Film film) {
         if (!isTablet) {
             Intent intent = new Intent(this, FilmDetailActivity.class);
-            intent.putExtra(FilmDetailActivity.FILM_PARAM, film);
+            intent.putExtra(FilmDetailActivity.FILM_ID_PARAM, film.getMovieDbId());
             startActivity(intent);
         } else {
-            FilmDetailFragment fragment = FilmDetailFragment.newInstance(film);
+            FilmDetailFragment fragment = FilmDetailFragment.newInstance(film.getMovieDbId());
             if (findViewById(R.id.fragment_container) == null) {
-                getFragmentManager().beginTransaction()
+                getSupportFragmentManager().beginTransaction()
                         .add(R.id.fragment_container, fragment).commit();
             } else {
-                android.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragment_container, fragment);
                 transaction.addToBackStack(null);
                 transaction.commit();

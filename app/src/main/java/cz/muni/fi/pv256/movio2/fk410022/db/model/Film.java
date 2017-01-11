@@ -1,18 +1,21 @@
 package cz.muni.fi.pv256.movio2.fk410022.db.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
+import cz.muni.fi.pv256.movio2.fk410022.db.enums.Genre;
 import cz.muni.fi.pv256.movio2.fk410022.db.provider.DbContract;
 
 @Table(name = DbContract.Film.TABLE, id = DbContract.BaseEntity.ID)
-public class Film extends Model implements Parcelable {
+public class Film extends Model {
 
     @Column(name = DbContract.Film.MOVIE_DB_ID)
     private Long movieDbId;
@@ -38,23 +41,18 @@ public class Film extends Model implements Parcelable {
     @Column(name = DbContract.Film.RATING)
     private double rating;
 
+    @Column(name = DbContract.Film.RATING_VOTE_COUNT)
+    private long ratingVoteCount;
+
+    private transient Collection<Genre> genresToPersist;
+
     public Film() {
         super();
     }
 
-    public Film(Parcel pc) {
-        movieDbId = pc.readLong();
-        title = pc.readString();
-        description = pc.readString();
-        releaseDate = new Date(pc.readLong());
-        posterPathId = pc.readString();
-        backdropPathId = pc.readString();
-        popularity = pc.readDouble();
-        rating = pc.readDouble();
-    }
-
+    @NonNull
     public Long getMovieDbId() {
-        return movieDbId;
+        return movieDbId == null ? -1 : movieDbId;
     }
 
     public void setMovieDbId(Long movieDbId) {
@@ -117,45 +115,24 @@ public class Film extends Model implements Parcelable {
         this.rating = rating;
     }
 
-    public static Creator<Film> getCREATOR() {
-        return CREATOR;
+    public long getRatingVoteCount() {
+        return ratingVoteCount;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public void setRatingVoteCount(long ratingVoteCount) {
+        this.ratingVoteCount = ratingVoteCount;
     }
 
-    @Override
-    public void writeToParcel(Parcel parcel, int flags) {
-        parcel.writeLong(getMovieDbId());
-        parcel.writeString(title);
-        parcel.writeString(description);
-        parcel.writeLong(releaseDate.getTime());
-        parcel.writeString(posterPathId);
-        parcel.writeString(backdropPathId);
-        parcel.writeDouble(popularity);
-        parcel.writeDouble(rating);
+    public Collection<Genre> getGenresToPersist() {
+        return genresToPersist;
     }
 
-    public static final Parcelable.Creator<Film> CREATOR = new Parcelable.Creator<Film>() {
-        public Film createFromParcel(Parcel pc) {
-            return new Film(pc);
-        }
+    public void setGenresToPersist(Collection<Genre> genresToPersist) {
+        this.genresToPersist = genresToPersist;
+    }
 
-        public Film[] newArray(int size) {
-            return new Film[size];
-        }
-    };
-
-    public boolean movieDbIdEquals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Film)) return false;
-        if (!super.equals(o)) return false;
-
-        Film film = (Film) o;
-
-        return movieDbId != null ? !movieDbId.equals(film.movieDbId) : film.movieDbId != null;
+    public List<FilmGenre> getGenres() {
+        return getId() == null ? Collections.emptyList() : getMany(FilmGenre.class, DbContract.FilmGenre.FILM);
     }
 
     @Override
@@ -168,6 +145,7 @@ public class Film extends Model implements Parcelable {
 
         if (Double.compare(film.popularity, popularity) != 0) return false;
         if (Double.compare(film.rating, rating) != 0) return false;
+        if (ratingVoteCount != film.ratingVoteCount) return false;
         if (movieDbId != null ? !movieDbId.equals(film.movieDbId) : film.movieDbId != null)
             return false;
         if (title != null ? !title.equals(film.title) : film.title != null) return false;
@@ -194,6 +172,7 @@ public class Film extends Model implements Parcelable {
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(rating);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (int) (ratingVoteCount ^ (ratingVoteCount >>> 32));
         return result;
     }
 }

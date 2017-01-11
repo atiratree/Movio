@@ -6,6 +6,7 @@ import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.activeandroid.ActiveAndroid;
+import com.activeandroid.Configuration;
 import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
 import com.annimon.stream.Stream;
@@ -13,6 +14,7 @@ import com.annimon.stream.Stream;
 import junit.framework.Assert;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -33,14 +35,19 @@ public class FavoriteDbTest {
     Film savedFilm;
 
     @BeforeClass
-    public static void setUp() {
-        ActiveAndroid.initialize(context);
+    public static void beforeClass() {
+        Configuration dbConfiguration = new Configuration.Builder(context).setDatabaseName(TestUtils.TEST_DB_NAME).create();
+        ActiveAndroid.initialize(dbConfiguration);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        ActiveAndroid.dispose();
+        context.deleteDatabase(TestUtils.TEST_DB_NAME);
     }
 
     @Before
-    public void init() {
-        ActiveAndroid.initialize(context);
-
+    public void setUp() {
         savedFilm = TestUtils.getNewFilm();
         savedFilm.save();
     }

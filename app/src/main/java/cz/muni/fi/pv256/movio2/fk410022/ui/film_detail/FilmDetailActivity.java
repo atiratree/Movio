@@ -6,8 +6,10 @@ import cz.muni.fi.pv256.movio2.fk410022.R;
 import cz.muni.fi.pv256.movio2.fk410022.ui.BaseMenuActivity;
 
 public class FilmDetailActivity extends BaseMenuActivity {
+
     private static final String TAG = FilmDetailActivity.class.getSimpleName();
-    public static final String FILM_PARAM = "FILM_PARAM";
+
+    public static final String FILM_ID_PARAM = "FILM_ID_PARAM";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,8 +21,8 @@ public class FilmDetailActivity extends BaseMenuActivity {
                 return;
             }
 
-            FilmDetailFragment firstFragment = FilmDetailFragment.newInstance(getIntent().getParcelableExtra(FILM_PARAM));
-            getFragmentManager().beginTransaction()
+            FilmDetailFragment firstFragment = FilmDetailFragment.newInstance(getIntent().getLongExtra(FILM_ID_PARAM, -1));
+            getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, firstFragment).commit();
         }
     }

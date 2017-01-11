@@ -6,6 +6,7 @@ import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.activeandroid.ActiveAndroid;
+import com.activeandroid.Configuration;
 import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
 import com.annimon.stream.Stream;
@@ -13,6 +14,7 @@ import com.annimon.stream.Stream;
 import junit.framework.Assert;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,11 +27,19 @@ import cz.muni.fi.pv256.movio2.fk410022.db.provider.DbContract;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class FilmDbTest {
+
     private static Context context = InstrumentationRegistry.getTargetContext();
 
     @BeforeClass
     public static void setUp() {
-        ActiveAndroid.initialize(context);
+        Configuration dbConfiguration = new Configuration.Builder(context).setDatabaseName(TestUtils.TEST_DB_NAME).create();
+        ActiveAndroid.initialize(dbConfiguration);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        ActiveAndroid.dispose();
+        context.deleteDatabase(TestUtils.TEST_DB_NAME);
     }
 
     @After
@@ -40,7 +50,7 @@ public class FilmDbTest {
     @Test
     public void testInsert() {
         Film result = TestUtils.getNewFilm();
-        Assert.assertTrue( result.save() > 0);
+        Assert.assertTrue(result.save() > 0);
 
         Assert.assertTrue(result.equals(retrieveFirstFilm()));
     }

@@ -14,6 +14,7 @@ public class DebugClass {
 
     private static final boolean DEBUG_STETHO = true;
     private static final boolean DEBUG_HTTP_CLIENT = false;
+    private static final boolean STRICT_MODE = true;
 
     public static void initialize(Context context) {
         initStrictMode();
@@ -36,21 +37,23 @@ public class DebugClass {
     }
 
     private static void initStrictMode() {
-        StrictMode.ThreadPolicy.Builder tpb = new StrictMode.ThreadPolicy.Builder()
-                .detectAll()
-                .penaltyLog();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            tpb.penaltyFlashScreen();
-        }
-        StrictMode.setThreadPolicy(tpb.build());
+        if (STRICT_MODE) {
+            StrictMode.ThreadPolicy.Builder tpb = new StrictMode.ThreadPolicy.Builder()
+                    .detectAll()
+                    .penaltyLog();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                tpb.penaltyFlashScreen();
+            }
+            StrictMode.setThreadPolicy(tpb.build());
 
-        StrictMode.VmPolicy.Builder vmpb = new StrictMode.VmPolicy.Builder()
-                .detectLeakedSqlLiteObjects()
-                .penaltyLog();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            vmpb.detectLeakedClosableObjects();
+            StrictMode.VmPolicy.Builder vmpb = new StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .penaltyLog();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                vmpb.detectLeakedClosableObjects();
+            }
+            StrictMode.setVmPolicy(vmpb.build());
         }
-        StrictMode.setVmPolicy(vmpb.build());
     }
 }
 
