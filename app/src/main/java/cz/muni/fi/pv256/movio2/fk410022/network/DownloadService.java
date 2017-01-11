@@ -6,17 +6,25 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.activeandroid.ActiveAndroid;
+import com.activeandroid.Model;
+import com.activeandroid.query.Select;
+import com.annimon.stream.Stream;
+
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import cz.muni.fi.pv256.movio2.fk410022.BuildConfig;
 import cz.muni.fi.pv256.movio2.fk410022.DebugClass;
 import cz.muni.fi.pv256.movio2.fk410022.R;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
-import cz.muni.fi.pv256.movio2.fk410022.store.FilmListStore;
-import cz.muni.fi.pv256.movio2.fk410022.store.FilmListType;
+import cz.muni.fi.pv256.movio2.fk410022.db.model.FilmGenre;
 import cz.muni.fi.pv256.movio2.fk410022.network.dto.Films;
 import cz.muni.fi.pv256.movio2.fk410022.network.exception.EmptyBodyException;
+import cz.muni.fi.pv256.movio2.fk410022.store.FilmListStore;
+import cz.muni.fi.pv256.movio2.fk410022.store.FilmListType;
 import cz.muni.fi.pv256.movio2.fk410022.util.Constants;
 import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.NotificationUtils;
@@ -80,6 +88,7 @@ public class DownloadService extends IntentService {
             }
             makeDownloadedNotification(films.getResultsCount(), false);
             result = films.toEntityList();
+            updateDb(films.getResults());
         } catch (Exception x) {
             String ex = x.getMessage() == null ? x.toString() : x.getMessage();
             notifUtils.fireNotification(ERROR_NOTIFICATION_ID, getString(R.string.error_message, type.getReadableName(), ex), true);
@@ -90,6 +99,52 @@ public class DownloadService extends IntentService {
             Intent finishIntent = new Intent(Constants.FILM_LIST_DOWNLOAD_FINISHED).putExtra(Constants.FILM_LIST_TYPE, type);
             finishIntent.putExtra(Constants.FILM_LIST_TYPE, type);
             LocalBroadcastManager.getInstance(this).sendBroadcast(finishIntent);
+        }
+    }
+
+    private void updateDb(cz.muni.fi.pv256.movio2.fk410022.network.dto.Film[] films) {
+        List<Film> dbFilms = new Select().from(Film.class).execute();
+
+        final HashMap<Long, Film> filmMap = Stream.of(dbFilms)
+                .collect(HashMap<Long, Film>::new, (map, film) -> map.put(film.getMovieDbId(), film));
+
+        List<Film> toUpdate = new ArrayList<>();
+
+        for (cz.muni.fi.pv256.movio2.fk410022.network.dto.Film film : films) {
+            if (film.getId() == null) {
+                continue;
+            }
+
+            Film dbFilm = filmMap.get(film.getId());
+            if (dbFilm == null) {
+                dbFilm = new Film();
+            }
+
+            if (film.updateDbFilm(dbFilm)) {
+                toUpdate.add(dbFilm);
+            }
+        }
+
+        ActiveAndroid.beginTransaction();
+        try {
+            Stream.of(toUpdate).forEach(Model::save);
+
+            ActiveAndroid.setTransactionSuccessful();
+        } finally {
+            ActiveAndroid.endTransaction();
+        }
+
+        ActiveAndroid.beginTransaction();
+        try {
+            Stream.of(toUpdate).forEach(
+                    film -> Stream.of(film.getGenresToPersist())
+                            .filter(value -> value != null)
+                            .map(genre -> new FilmGenre(film, genre))
+                            .forEach(Model::save));
+
+            ActiveAndroid.setTransactionSuccessful();
+        } finally {
+            ActiveAndroid.endTransaction();
         }
     }
 
@@ -118,8 +173,8 @@ public class DownloadService extends IntentService {
                 requestCall = movieDbClient.listRecentPopular(Constants.API_KEY,
                         DateUtils.convertToString(twoMonthsBack.getTime()), DateUtils.convertToString(today.getTime()));
                 break;
-            case CURRENT_YEAR_POPULAR_INDEPENDENT_MOVIES:
-                requestCall = movieDbClient.listCurrentYearPpularIndependent(Constants.API_KEY, DateUtils.getCurrentYear());
+            case CURRENT_YEAR_POPULAR_ANIMATED_MOVIES:
+                requestCall = movieDbClient.listCurrentYearPopularAnimation(Constants.API_KEY, DateUtils.getCurrentYear());
                 break;
             case HIGHLY_RATED_SCIFI_MOVIES:
                 requestCall = movieDbClient.listHighlyRatedScifi(Constants.API_KEY);

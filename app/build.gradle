@@ -14,7 +14,7 @@ android {
         jackOptions {
             enabled true
         }
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "cz.muni.fi.pv256.movio2.fk410022.custom.TestAppRunner"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

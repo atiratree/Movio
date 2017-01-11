@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 public enum FilmListType {
     RECENT_POPULAR_MOVIES,
-    CURRENT_YEAR_POPULAR_INDEPENDENT_MOVIES,
+    CURRENT_YEAR_POPULAR_ANIMATED_MOVIES,
     HIGHLY_RATED_SCIFI_MOVIES;
 
     @NonNull

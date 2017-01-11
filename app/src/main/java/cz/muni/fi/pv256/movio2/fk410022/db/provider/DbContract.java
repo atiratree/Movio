@@ -19,6 +19,7 @@ public interface DbContract {
         String BACKDROP_PATH_ID = "backdrop_path_id";
         String POPULARITY = "popularity";
         String RATING = "rating";
+        String RATING_VOTE_COUNT = "rating_vote_count";
     }
 
     interface Favorites extends BaseEntity {
@@ -26,5 +27,12 @@ public interface DbContract {
 
         String FILM = "film";
         String FAVORITE = "favorite";
+    }
+
+    interface FilmGenre extends BaseEntity {
+        String TABLE = "film_genre";
+
+        String FILM = "film";
+        String GENRE = "genre";
     }
 }

@@ -25,13 +25,13 @@
             android:layout_height="@dimen/poster_height"/>
 
         <TextView
-            android:id="@+id/current_year_popular_independent_movies_title"
+            android:id="@+id/current_year_popular_animated_movies_title"
             style="@style/RecyclerViewWhiteTitleText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view_current_year_popular_independent_movies"
+            android:id="@+id/recycler_view_current_year_popular_animated_movies"
             android:layout_width="match_parent"
             android:layout_height="@dimen/poster_height"/>
 

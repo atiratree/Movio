@@ -8,7 +8,7 @@
     <string name="recent_popular_movies">Recent Popular Movies</string>
     <string name="favorites">Favorites</string>
     <string name="highly_rated_scifi_movies">Highly Rated Sci-fi Movies</string>
-    <string name="current_year_popular_independent_movies"  tools:ignore="PluralsCandidate">%1$d Popular Independent Movies</string>
+    <string name="current_year_popular_animated_movies" tools:ignore="PluralsCandidate">%1$d Popular Animated Movies</string>
     <string name="empty_body_message">Received Empty body!</string>
     <string name="downloading_message">Downloading Movies</string>
     <string name="error_message">Downloading of %1$s failed! Error occurred: %2$s</string>
@@ -23,7 +23,7 @@
     <string name="accessibility_poster_of">Poster of %1$s</string>
     <string name="accessibility_poster_rated">Poster of %1$s rated %2$s</string>
     <string name="accessibility_recent_popular_movies">Recent Popular Movies. Scrollable horizontal list bellow</string>
-    <string name="accessibility_current_year_popular_independent_movies" tools:ignore="PluralsCandidate">%1$d Popular Independent Movies. Scrollable horizontal list bellow</string>
+    <string name="accessibility_current_year_popular_animated_movies" tools:ignore="PluralsCandidate">%1$d Popular Animated Movies. Scrollable horizontal list bellow</string>
     <string name="accessibility_highly_rated_scifi_movies">Highly Rated Sci-fi Movies. Scrollable horizontal list bellow</string>
     <string name="accessibility_favorites">Favorites. Scrollable horizontal list bellow</string>
 

@@ -5,6 +5,8 @@ import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 
 public class TestUtils {
+    public static final String TEST_DB_NAME = "test.db";
+
     public static Film getNewFilm() {
         Film film = new Film();
         film.setDescription("A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy.");
