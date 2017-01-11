@@ -9,19 +9,18 @@ import com.activeandroid.Model;
 import com.activeandroid.loaders.ModelLoader;
 import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
-import com.annimon.stream.Stream;
 
 import java.util.List;
 
-public abstract class EntityLoader<T extends Model> implements LoaderManager.LoaderCallbacks<List<T>> {
+public abstract class EntitiesLoader<T extends Model> implements LoaderManager.LoaderCallbacks<List<T>> {
 
-    private EntityListener<T> listener;
+    private EntitiesListener<T> listener;
 
     private Context context;
 
     private Class<T> clazz;
 
-    public EntityLoader(Class<T> clazz, EntityListener<T> listener, Context context) {
+    public EntitiesLoader(Class<T> clazz, EntitiesListener<T> listener, Context context) {
         this.clazz = clazz;
         this.listener = listener;
         this.context = context.getApplicationContext();
@@ -34,9 +33,7 @@ public abstract class EntityLoader<T extends Model> implements LoaderManager.Loa
     @Override
     public Loader<List<T>> onCreateLoader(int id, Bundle args) {
         From from = new Select().from(clazz);
-
         buildOnQuery(args, from);
-        from.limit(1);
 
         return new ModelLoader<>(getContext(), clazz, from, true);
     }
@@ -45,14 +42,14 @@ public abstract class EntityLoader<T extends Model> implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<List<T>> loader, List<T> data) {
-        listener.onLoadFinished(Stream.of(data).findFirst().orElse(null));
+        listener.onLoadFinished(data);
     }
 
     @Override
     public void onLoaderReset(Loader<List<T>> loader) {
     }
 
-    public interface EntityListener<T extends Model> {
-        void onLoadFinished(T entity);
+    public interface EntitiesListener<T extends Model> {
+        void onLoadFinished(List<T> entities);
     }
 }

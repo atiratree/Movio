@@ -20,4 +20,5 @@
     <color name="star_end_gradient">#d5ba5a</color>
     <color name="star_line_start_gradient">#B8B4B0</color>
     <color name="star_line_end_gradient">#e7e5d8</color>
+    <color name="fab_warning">#e57373</color>
 </resources>

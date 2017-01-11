@@ -9,11 +9,11 @@ import cz.muni.fi.pv256.movio2.fk410022.db.model.Favorite;
 import cz.muni.fi.pv256.movio2.fk410022.db.provider.DbContract;
 import cz.muni.fi.pv256.movio2.fk410022.db.provider.DbSyntax;
 
-public class FavoritesLoader extends EntityLoader<Favorite> {
+public class FavoriteLoader extends EntityLoader<Favorite> {
 
     public static final String FILM_ID_PARAM = "FILM_ID_PARAM";
 
-    public FavoritesLoader(FavoriteListener listener, Context context) {
+    public FavoriteLoader(FavoriteListener listener, Context context) {
         super(Favorite.class, listener, context);
     }
 
