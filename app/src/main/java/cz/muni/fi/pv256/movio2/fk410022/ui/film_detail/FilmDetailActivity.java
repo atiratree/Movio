@@ -18,7 +18,7 @@ public class FilmDetailActivity extends BaseMenuActivity {
         setContentView(R.layout.activity_film_detail);
 
         if (findViewById(R.id.detail_fragment_container) != null) {
-            FilmDetailFragment detailFragment = FilmDetailFragment.newInstance(getIntent().getLongExtra(FILM_ID_PARAM, -1), new OnSwipeListener(){
+            FilmDetailFragment detailFragment = FilmDetailFragment.newInstance(getIntent().getLongExtra(FILM_ID_PARAM, -1), new OnSwipeListener() {
                 @Override
                 public void onSwipeLeft() {
                     finish();

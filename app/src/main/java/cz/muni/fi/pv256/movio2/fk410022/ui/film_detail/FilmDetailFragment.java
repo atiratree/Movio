@@ -1,6 +1,5 @@
 package cz.muni.fi.pv256.movio2.fk410022.ui.film_detail;
 
-import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -32,10 +31,8 @@ import cz.muni.fi.pv256.movio2.fk410022.util.image.ImageHelper;
 public class FilmDetailFragment extends Fragment implements FilmLoader.FilmListener {
     private static final String TAG = FilmDetailFragment.class.getSimpleName();
 
-    private static final int FILM_LOADER = 0;
-    private static final int FAVORITES_LOADER = 1;
-
-    private Context context;
+    private static final int FILM_LOADER = 5; // unique between fragments
+    private static final int FAVORITES_LOADER = 6;
 
     private View view;
 
@@ -62,19 +59,22 @@ public class FilmDetailFragment extends Fragment implements FilmLoader.FilmListe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = getContext().getApplicationContext();
 
-        onSwipeTouchListener = new OnSwipeTouchListener(context, onSwipeListener);
+        onSwipeTouchListener = new OnSwipeTouchListener(getContext(), onSwipeListener);
+        onSwipeListener = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        onSwipeTouchListener = null;
     }
 
     @Override
     public void onDestroyView() {
         cancelImageLoad();
-        // free
         view = null;
         fab = null;
-        context = null;
-        onSwipeListener = null;
         super.onDestroyView();
     }
 
@@ -92,7 +92,7 @@ public class FilmDetailFragment extends Fragment implements FilmLoader.FilmListe
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        getLoaderManager().initLoader(FILM_LOADER, getArguments(), new FilmLoader(this, context));
+        getLoaderManager().restartLoader(FILM_LOADER, getArguments(), new FilmLoader(this, getContext()));
     }
 
     @Override
@@ -103,14 +103,7 @@ public class FilmDetailFragment extends Fragment implements FilmLoader.FilmListe
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        getLoaderManager().restartLoader(FILM_LOADER, getArguments(), new FilmLoader(this, context));
-    }
-
-    @Override
     public void onLoadFinished(final Film entity) {
-        renderFilm(entity);
         Bundle bundle = new Bundle();
         bundle.putLong(FavoriteLoader.FILM_ID_PARAM, entity.getId());
         getLoaderManager().initLoader(FAVORITES_LOADER, bundle, new FavoriteLoader(favorite -> {
@@ -118,8 +111,8 @@ public class FilmDetailFragment extends Fragment implements FilmLoader.FilmListe
                 boolean isFavorite = favorite != null && favorite.isFavorite();
                 fab.setImageResource(isFavorite ? R.drawable.ic_clear_white_24dp : R.drawable.ic_add_white_24dp);
 
-                int backgroundColor = ContextCompat.getColor(context,
-                        isFavorite ? R.color.fab_warning : ColorUtils.getThemeAccentResourceId(context));
+                int backgroundColor = ContextCompat.getColor(getContext(),
+                        isFavorite ? R.color.fab_warning : ColorUtils.getThemeAccentResourceId(getContext()));
                 fab.setBackgroundTintList(ColorStateList.valueOf(backgroundColor));
 
                 fab.setOnClickListener(v -> {
@@ -133,7 +126,8 @@ public class FilmDetailFragment extends Fragment implements FilmLoader.FilmListe
                     }
                 });
             }
-        }, context));
+        }, getContext()));
+        renderFilm(entity);
     }
 
     private void cancelImageLoad() {

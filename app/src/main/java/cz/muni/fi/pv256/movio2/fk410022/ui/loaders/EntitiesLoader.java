@@ -38,7 +38,9 @@ public abstract class EntitiesLoader<T extends Model> implements LoaderManager.L
         return new ModelLoader<>(getContext(), clazz, from, true);
     }
 
-    protected abstract void buildOnQuery(Bundle args, From from);
+    protected void buildOnQuery(Bundle args, From from) {
+
+    }
 
     @Override
     public void onLoadFinished(Loader<List<T>> loader, List<T> data) {

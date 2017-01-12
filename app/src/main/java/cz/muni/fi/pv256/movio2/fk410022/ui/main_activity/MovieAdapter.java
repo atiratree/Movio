@@ -88,7 +88,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         holder.poster.setImageDrawable(null); // clear
         String rating = context.getString(R.string.rating_value, film.getRating());
         holder.detail.setBackgroundColor(ColorUtils.addAlphaToColor(ContextCompat
-
                 .getColor(context, R.color.palette_default), 0.5f));
 
         ImageHelper.displayPoster(film, new ImageViewAware(holder.poster) {
