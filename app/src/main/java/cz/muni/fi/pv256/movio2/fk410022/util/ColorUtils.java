@@ -37,7 +37,9 @@ public class ColorUtils {
 
     @NonNull
     public static Palette generatePalette(Bitmap bitmap) {
-        return Palette.from(bitmap).generate();
+        return Palette
+                .from(bitmap)
+                .generate();
     }
 
     @NonNull

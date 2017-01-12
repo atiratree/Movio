@@ -17,14 +17,12 @@ import java.util.List;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
-import cz.muni.fi.pv256.movio2.fk410022.store.FilmListStore;
 import cz.muni.fi.pv256.movio2.fk410022.ui.loaders.FavoriteFilmsLoader;
 
 public class FavoritesFragment extends Fragment implements FavoriteFilmsLoader.FavoriteFilmsListener {
     private static final String TAG = FavoritesFragment.class.getSimpleName();
     private static final int FAVORITE_FILMS_LOADER = 0;
 
-    private FilmListStore filmListStore = FilmListStore.INSTANCE;
     private Context context;
 
     private View view;
@@ -49,6 +47,13 @@ public class FavoritesFragment extends Fragment implements FavoriteFilmsLoader.F
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         getLoaderManager().initLoader(FAVORITE_FILMS_LOADER, getArguments(), new FavoriteFilmsLoader(this, context));
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        view = null;
+        context = null;
     }
 
     @Override

@@ -45,7 +45,9 @@ public abstract class EntityLoader<T extends Model> implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<List<T>> loader, List<T> data) {
-        listener.onLoadFinished(Stream.of(data).findFirst().orElse(null));
+        if (listener != null) {
+            listener.onLoadFinished(Stream.of(data).findFirst().orElse(null));
+        }
     }
 
     @Override

@@ -34,6 +34,12 @@ public class ImageHelper {
         return makeFinalPath(idPart, SizeHelper.getPosterSize());
     }
 
+    public static void cancelDisplay(ImageView view) {
+        if (view != null) {
+            ImageLoader.getInstance().cancelDisplayTask(view);
+        }
+    }
+
     private static String makeFinalPath(String idPart, Size size) {
         return String.format("%s%s%s", Constants.IMAGE_BASE_URL, size.getUrlPart(), idPart);
     }

@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,8 @@ import cz.muni.fi.pv256.movio2.fk410022.R;
 import cz.muni.fi.pv256.movio2.fk410022.db.manager.FavoritesManager;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Favorite;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
+import cz.muni.fi.pv256.movio2.fk410022.ui.listener.OnSwipeListener;
+import cz.muni.fi.pv256.movio2.fk410022.ui.listener.OnSwipeTouchListener;
 import cz.muni.fi.pv256.movio2.fk410022.ui.loaders.FavoriteLoader;
 import cz.muni.fi.pv256.movio2.fk410022.ui.loaders.FilmLoader;
 import cz.muni.fi.pv256.movio2.fk410022.util.ColorUtils;
@@ -38,25 +41,49 @@ public class FilmDetailFragment extends Fragment implements FilmLoader.FilmListe
 
     private FloatingActionButton fab;
 
-    public static FilmDetailFragment newInstance(long movieDbId) {
+    private View.OnTouchListener onSwipeTouchListener;
+
+    private OnSwipeListener onSwipeListener;
+
+    public static FilmDetailFragment newInstance(long movieDbId, OnSwipeListener listener) {
         Bundle args = new Bundle();
 
         FilmDetailFragment fragment = new FilmDetailFragment();
         args.putLong(FilmLoader.MOVIE_DB_ID_PARAM, movieDbId);
         fragment.setArguments(args);
+        fragment.setListener(listener);
         return fragment;
+    }
+
+    public void setListener(OnSwipeListener listener) {
+        onSwipeListener = listener;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getContext().getApplicationContext();
+
+        onSwipeTouchListener = new OnSwipeTouchListener(context, onSwipeListener);
+    }
+
+    @Override
+    public void onDestroyView() {
+        cancelImageLoad();
+        // free
+        view = null;
+        fab = null;
+        context = null;
+        onSwipeListener = null;
+        super.onDestroyView();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_film_detail, container, false);
+
+        view.setOnTouchListener(onSwipeTouchListener);
         fab = (FloatingActionButton) view.findViewById(R.id.add_to_favorites);
         fab.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
 
@@ -109,6 +136,14 @@ public class FilmDetailFragment extends Fragment implements FilmLoader.FilmListe
         }, context));
     }
 
+    private void cancelImageLoad() {
+        ImageView poster = (ImageView) view.findViewById(R.id.poster);
+        ImageView backdrop = (ImageView) view.findViewById(R.id.backdrop);
+
+        ImageHelper.cancelDisplay(poster);
+        ImageHelper.cancelDisplay(backdrop);
+    }
+
     private void renderFilm(Film film) {
         if (film != null) {
             getActivity().setTitle(film.getTitle());
@@ -130,6 +165,10 @@ public class FilmDetailFragment extends Fragment implements FilmLoader.FilmListe
 
             TextView description = (TextView) view.findViewById(R.id.description);
             description.setText(String.valueOf(film.getDescription()));
+            description.setOnTouchListener(onSwipeTouchListener);
+
+            NestedScrollView nestedScrollView = (NestedScrollView) view.findViewById(R.id.nested_scroll_view);
+            nestedScrollView.setOnTouchListener(onSwipeTouchListener);
 
             FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.add_to_favorites);
         }

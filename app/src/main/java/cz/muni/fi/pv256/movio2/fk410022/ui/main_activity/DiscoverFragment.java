@@ -31,9 +31,16 @@ import cz.muni.fi.pv256.movio2.fk410022.util.Utils;
 public class DiscoverFragment extends Fragment {
     private static final String TAG = DiscoverFragment.class.getSimpleName();
 
-    private FilmListStore filmListStore = FilmListStore.INSTANCE;
-    private Map<FilmListType, RecyclerView> recyclerMap = new EnumMap<>(FilmListType.class);
     private Context context;
+    private Map<FilmListType, RecyclerView> recyclerMap = new EnumMap<>(FilmListType.class);
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            FilmListType type = (FilmListType) intent.getSerializableExtra(Constants.FILM_LIST_TYPE);
+            refreshRecyclerView(type);
+        }
+    };
 
     public static DiscoverFragment newInstance() {
         return new DiscoverFragment();
@@ -55,6 +62,15 @@ public class DiscoverFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(broadcastReceiver);
+        broadcastReceiver = null;
+        context = null;
+        recyclerMap = null;
+    }
+
     private void initIndependentTitle(View view) {
         int year = DateUtils.getCurrentYear();
         TextView independentMoviesTitle = (TextView) view.findViewById(R.id.current_year_popular_animated_movies_title);
@@ -73,13 +89,7 @@ public class DiscoverFragment extends Fragment {
     }
 
     private void initBroadcasts() {
-        LocalBroadcastManager.getInstance(context).registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                FilmListType type = (FilmListType) intent.getSerializableExtra(Constants.FILM_LIST_TYPE);
-                refreshRecyclerView(type);
-            }
-        }, new IntentFilter(Constants.FILM_LIST_DOWNLOAD_FINISHED));
+        LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, new IntentFilter(Constants.FILM_LIST_DOWNLOAD_FINISHED));
     }
 
     private void initializeRecyclerView(FilmListType type) {
@@ -96,7 +106,7 @@ public class DiscoverFragment extends Fragment {
             }
         });
 
-        boolean initialized = filmListStore.isInitialized(type);
+        boolean initialized = FilmListStore.INSTANCE.isInitialized(type);
         boolean hasConnection = Utils.isNetworkAvailable(context);
 
         if (initialized) {
@@ -107,7 +117,7 @@ public class DiscoverFragment extends Fragment {
     }
 
     private void refreshRecyclerView(FilmListType type) {
-        RecyclerView.Adapter adapter = new MovieAdapter(filmListStore.getAll(type), (MainActivity) getActivity(), context);
+        RecyclerView.Adapter adapter = new MovieAdapter(FilmListStore.INSTANCE.getAll(type), (MainActivity) getActivity(), context);
         recyclerMap.get(type).setAdapter(adapter);
     }
 
