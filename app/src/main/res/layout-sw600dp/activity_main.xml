@@ -9,9 +9,9 @@
               tools:context="cz.muni.fi.pv256.movio2.fk410022.ui.main_activity.MainActivity">
 
     <ScrollView
+        android:id="@+id/movies_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1">
+        android:layout_height="match_parent">
 
         <FrameLayout
             android:id="@+id/movies_fragment_container"
@@ -26,6 +26,5 @@
         android:layout_height="match_parent"
         android:layout_marginLeft="5dp"
         android:layout_marginStart="5dp"
-        android:layout_weight="1"
         tools:ignore="InconsistentLayout"/>
 </LinearLayout>

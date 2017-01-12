@@ -42,7 +42,9 @@ public abstract class EntitiesLoader<T extends Model> implements LoaderManager.L
 
     @Override
     public void onLoadFinished(Loader<List<T>> loader, List<T> data) {
-        listener.onLoadFinished(data);
+        if (listener != null) {
+            listener.onLoadFinished(data);
+        }
     }
 
     @Override

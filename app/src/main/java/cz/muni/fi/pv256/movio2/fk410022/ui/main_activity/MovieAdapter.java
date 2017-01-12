@@ -22,6 +22,7 @@ import java.util.List;
 import cz.muni.fi.pv256.movio2.fk410022.R;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.ui.drawable.GradientStar;
+import cz.muni.fi.pv256.movio2.fk410022.ui.listener.OnFilmClickListener;
 import cz.muni.fi.pv256.movio2.fk410022.util.ColorUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.image.ImageHelper;
 
@@ -106,7 +107,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
             }
         });
 
-        holder.poster.setOnClickListener(view -> mListener.onItemClick(film));
+        holder.poster.setOnClickListener(view -> mListener.onItemClick(film.getMovieDbId()));
         holder.poster.setContentDescription(context.getString(R.string.accessibility_poster_rated, film.getTitle(), rating));
         holder.title.setText(film.getTitle());
         holder.rating.setText(rating);
