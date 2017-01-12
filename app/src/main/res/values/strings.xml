@@ -6,6 +6,7 @@
     <string name="no_data">No Data Received</string>
     <string name="downloading">Downloading…</string>
     <string name="no_favorites">Add movies to favorites to see this tab.</string>
+    <string name="no_movies">Refresh movies to see this list.</string>
     <string name="recent_popular_movies">New Popular</string>
     <string name="highly_rated_scifi_movies">Highly Rated Sci-fi</string>
     <string name="current_year_popular_animated_movies" tools:ignore="PluralsCandidate">Popular Animated in %1$d</string>

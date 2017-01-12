@@ -71,25 +71,25 @@ public class OnSwipeTouchListener implements OnTouchListener {
     }
 
     private void onSwipeRight() {
-        if(onSwipeListener != null) {
+        if (onSwipeListener != null) {
             onSwipeListener.onSwipeRight();
         }
     }
 
     private void onSwipeLeft() {
-        if(onSwipeListener != null) {
+        if (onSwipeListener != null) {
             onSwipeListener.onSwipeLeft();
         }
     }
 
     private void onSwipeTop() {
-        if(onSwipeListener != null) {
+        if (onSwipeListener != null) {
             onSwipeListener.onSwipeTop();
         }
     }
 
     private void onSwipeBottom() {
-        if(onSwipeListener != null) {
+        if (onSwipeListener != null) {
             onSwipeListener.onSwipeBottom();
         }
     }

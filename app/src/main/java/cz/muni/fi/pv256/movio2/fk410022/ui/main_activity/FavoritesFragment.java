@@ -1,17 +1,12 @@
 package cz.muni.fi.pv256.movio2.fk410022.ui.main_activity;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 
 import java.util.List;
 
@@ -21,39 +16,33 @@ import cz.muni.fi.pv256.movio2.fk410022.ui.loaders.FavoriteFilmsLoader;
 
 public class FavoritesFragment extends Fragment implements FavoriteFilmsLoader.FavoriteFilmsListener {
     private static final String TAG = FavoritesFragment.class.getSimpleName();
-    private static final int FAVORITE_FILMS_LOADER = 0;
+    private static final int FAVORITE_FILMS_LOADER = 4; // unique between fragments
 
-    private Context context;
-
-    private View view;
+    private RecyclerView recyclerView;
 
     public static FavoritesFragment newInstance() {
         return new FavoritesFragment();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        context = getActivity().getApplicationContext();
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_favorites, container, false);
-        return view;
-    }
+        View view = inflater.inflate(R.layout.fragment_favorites, container, false);
+        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_favorites);
+        Utils.initializeRecyclerView(recyclerView, getContext());
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        getLoaderManager().initLoader(FAVORITE_FILMS_LOADER, getArguments(), new FavoriteFilmsLoader(this, context));
+        return view;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        view = null;
-        context = null;
+        recyclerView = null;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        getLoaderManager().restartLoader(FAVORITE_FILMS_LOADER, getArguments(), new FavoriteFilmsLoader(this, getContext()));
     }
 
     @Override
@@ -63,38 +52,14 @@ public class FavoritesFragment extends Fragment implements FavoriteFilmsLoader.F
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        getLoaderManager().restartLoader(FAVORITE_FILMS_LOADER, getArguments(), new FavoriteFilmsLoader(this, context));
-    }
-
-    @Override
     public void onLoadFinished(List<Film> favorites) {
-        initializeRecyclerView(favorites);
-    }
-
-    private void initializeRecyclerView(List<Film> favorites) {
-        if (view == null) {
+        if (getContext() == null) {
             return;
         }
-
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_favorites);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setHasFixedSize(true);
-
-        final PauseOnScrollListener listener = new PauseOnScrollListener(ImageLoader.getInstance(), false, false);
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                listener.onScrollStateChanged(null, newState);
-            }
-        });
-
         if (favorites.isEmpty()) {
-            recyclerView.setAdapter(new MovieAdapter(getString(R.string.no_favorites), context));
+            recyclerView.setAdapter(new MovieAdapter(getString(R.string.no_favorites), getContext()));
         } else {
-            recyclerView.setAdapter(new MovieAdapter(favorites, (MainActivity) getActivity(), context));
+            recyclerView.setAdapter(new MovieAdapter(favorites, (MainActivity) getActivity(), getContext()));
         }
     }
 }

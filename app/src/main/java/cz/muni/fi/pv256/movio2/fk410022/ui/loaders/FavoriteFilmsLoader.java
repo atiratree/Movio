@@ -7,10 +7,10 @@ import com.activeandroid.query.From;
 
 import java.util.List;
 
+import cz.muni.fi.pv256.movio2.fk410022.db.DbContract;
+import cz.muni.fi.pv256.movio2.fk410022.db.DbSyntax;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Favorite;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
-import cz.muni.fi.pv256.movio2.fk410022.db.provider.DbContract;
-import cz.muni.fi.pv256.movio2.fk410022.db.provider.DbSyntax;
 
 public class FavoriteFilmsLoader extends EntitiesLoader<Film> {
 

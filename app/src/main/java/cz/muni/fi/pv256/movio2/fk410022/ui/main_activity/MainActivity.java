@@ -17,15 +17,13 @@ import com.annimon.stream.Stream;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
 import cz.muni.fi.pv256.movio2.fk410022.network.DownloadService;
-import cz.muni.fi.pv256.movio2.fk410022.store.FilmListStore;
-import cz.muni.fi.pv256.movio2.fk410022.store.FilmListType;
 import cz.muni.fi.pv256.movio2.fk410022.ui.BaseMenuActivity;
 import cz.muni.fi.pv256.movio2.fk410022.ui.film_detail.FilmDetailActivity;
 import cz.muni.fi.pv256.movio2.fk410022.ui.film_detail.FilmDetailFragment;
 import cz.muni.fi.pv256.movio2.fk410022.ui.listener.OnFilmClickListener;
 import cz.muni.fi.pv256.movio2.fk410022.ui.listener.OnSwipeListener;
 import cz.muni.fi.pv256.movio2.fk410022.util.Constants;
-import cz.muni.fi.pv256.movio2.fk410022.util.Utils;
+import cz.muni.fi.pv256.movio2.fk410022.network.FilmListType;
 
 public class MainActivity extends BaseMenuActivity implements OnFilmClickListener {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -49,7 +47,6 @@ public class MainActivity extends BaseMenuActivity implements OnFilmClickListene
         }
 
         renderFragment();
-        downloadMovies();
         refreshDetailVisibility();
     }
 
@@ -116,7 +113,6 @@ public class MainActivity extends BaseMenuActivity implements OnFilmClickListene
                 .replace(R.id.movies_fragment_container, fragment).commit();
     }
 
-
     @Override
     public void onItemClick(Long filmDbId) {
         if (!isTablet) {
@@ -124,7 +120,7 @@ public class MainActivity extends BaseMenuActivity implements OnFilmClickListene
             intent.putExtra(FilmDetailActivity.FILM_ID_PARAM, filmDbId);
             startActivity(intent);
         } else {
-            FilmDetailFragment detailFragment = FilmDetailFragment.newInstance(filmDbId, new OnSwipeListener(){
+            FilmDetailFragment detailFragment = FilmDetailFragment.newInstance(filmDbId, new OnSwipeListener() {
                 @Override
                 public void onSwipeRight() {
                     showDetail(NOT_VISIBLE);
@@ -136,7 +132,6 @@ public class MainActivity extends BaseMenuActivity implements OnFilmClickListene
             } else {
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.detail_fragment_container, detailFragment);
-                transaction.addToBackStack(null);
                 transaction.commit();
 
                 showDetail(filmDbId);
@@ -198,17 +193,13 @@ public class MainActivity extends BaseMenuActivity implements OnFilmClickListene
         a.setDuration(100);
         container.startAnimation(a);
 
-        invalidateOptionsMenu();
-    }
-
-    private void downloadMovies() {
-        boolean hasConnection = Utils.isNetworkAvailable(this);
-
-        for (FilmListType type : FilmListType.values()) {
-            if (!FilmListStore.INSTANCE.isInitialized(type) && hasConnection) {
-                downloadMovies(type);
-            }
+        if (!isDetailVisible()) {
+            getSupportFragmentManager().beginTransaction()
+                    .remove(getSupportFragmentManager().findFragmentById(R.id.detail_fragment_container))
+                    .commit();
         }
+
+        invalidateOptionsMenu();
     }
 
     private void downloadMovies(FilmListType type) {

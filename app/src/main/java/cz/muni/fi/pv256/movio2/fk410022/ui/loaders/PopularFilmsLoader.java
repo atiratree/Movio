@@ -8,22 +8,18 @@ import com.activeandroid.query.From;
 import cz.muni.fi.pv256.movio2.fk410022.db.DbContract;
 import cz.muni.fi.pv256.movio2.fk410022.db.DbSyntax;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
+import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 
-public class FilmLoader extends EntityLoader<Film> {
+public class PopularFilmsLoader extends EntitiesLoader<Film> {
 
-    public static final String MOVIE_DB_ID_PARAM = "MOVIE_DB_ID_PARAM";
-
-    public FilmLoader(FilmListener listener, Context context) {
+    public PopularFilmsLoader(EntitiesListener<Film> listener, Context context) {
         super(Film.class, listener, context);
     }
 
     @Override
     protected void buildOnQuery(Bundle args, From from) {
-        from.where(DbSyntax.equalsTo(DbContract.Film.MOVIE_DB_ID), args.getLong(MOVIE_DB_ID_PARAM));
-    }
-
-    public interface FilmListener extends EntityListener<Film> {
-        void onLoadFinished(Film film);
+        from.where(DbSyntax.fromToBoth(DbContract.Film.RELEASE_DATE),
+                DateUtils.getTwoMonthsBack().getTime(), DateUtils.getToday().getTime())
+                .orderBy(DbSyntax.desc(DbContract.Film.POPULARITY));
     }
 }
-

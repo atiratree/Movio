@@ -1,6 +1,8 @@
 package cz.muni.fi.pv256.movio2.fk410022.util;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.util.Pair;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -30,7 +32,56 @@ public class DateUtils {
         return format.format(date.getTime());
     }
 
-    public static int getCurrentYear() {
+    public static int getCurrentYearAsInt() {
         return Calendar.getInstance().get(Calendar.YEAR);
+    }
+
+    public static Date getCurrentYear() {
+        return getFirstTimeOfYear().getTime();
+    }
+
+    public static Date getToday() {
+        Calendar today = Calendar.getInstance();
+        nullTime(today);
+        return today.getTime();
+    }
+
+    public static Date getTwoMonthsBack() {
+        Calendar twoMonthsBack = Calendar.getInstance();
+        twoMonthsBack.add(Calendar.MONTH, -2);
+        nullTime(twoMonthsBack);
+
+        return twoMonthsBack.getTime();
+    }
+
+    public static Pair<Long, Long> getCurrentYearInterval() {
+        Long from;
+        Long to;
+
+        Calendar calendar = getFirstTimeOfYear();
+        from = calendar.getTime().getTime();
+
+        calendar.add(Calendar.YEAR, 1);
+        to = calendar.getTime().getTime();
+
+        return new Pair<>(from, to);
+    }
+
+    @NonNull
+    private static Calendar getFirstTimeOfYear() {
+        Calendar calendar;
+        calendar = Calendar.getInstance();
+
+        calendar.set(Calendar.MONTH, Calendar.JANUARY);
+        calendar.set(Calendar.DATE, 1);
+        nullTime(calendar);
+        return calendar;
+    }
+
+    private static void nullTime(Calendar calendar) {
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
     }
 }
