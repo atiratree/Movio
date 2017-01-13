@@ -5,6 +5,9 @@ import com.annimon.stream.Stream;
 
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import cz.muni.fi.pv256.movio2.fk410022.db.enums.Genre;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.FilmGenre;
@@ -102,20 +105,7 @@ public class Film {
         this.genre_ids = genre_ids;
     }
 
-    public cz.muni.fi.pv256.movio2.fk410022.db.model.Film toEntity() {
-        cz.muni.fi.pv256.movio2.fk410022.db.model.Film film = new cz.muni.fi.pv256.movio2.fk410022.db.model.Film();
-        film.setMovieDbId(id);
-        film.setTitle(original_title);
-        film.setDescription(overview);
-        film.setReleaseDate(DateUtils.convertToDate(release_date));
-        film.setPosterPathId(poster_path);
-        film.setBackdropPathId(backdrop_path);
-        film.setPopularity(popularity);
-        film.setRating(vote_average);
-        return film;
-    }
-
-    public boolean updateDbFilm(cz.muni.fi.pv256.movio2.fk410022.db.model.Film toPersist) {
+    public boolean updateValuesOfDbFilm(cz.muni.fi.pv256.movio2.fk410022.db.model.Film toPersist) {
         if (toPersist == null) {
             throw new IllegalArgumentException("Film to persist cannot be null");
         }
@@ -169,16 +159,29 @@ public class Film {
         }
 
         // check and prepare genres
-        EnumSet<Genre> genres = EnumSet.copyOf(Stream.of(genre_ids).map(Genre::fromId).collect(Collectors.toList()));
-        Stream.of(toPersist.getGenres()).map(FilmGenre::getGenre).forEach(persisted -> {
-            if (genres.contains(persisted)) { // already persisted
-                genres.remove(persisted);
+        List<Genre> allRestGenres = Stream.of(genre_ids).map(Genre::fromId).collect(Collectors.toList());
+        EnumSet<Genre> allGenres = allRestGenres.isEmpty() ? EnumSet.noneOf(Genre.class) : EnumSet.copyOf(allRestGenres);
+        EnumSet<Genre> toPersistGenres = allGenres.clone();
+        Set<FilmGenre> toRemoveGenres = new HashSet<>();
+
+        Stream.of(toPersist.getGenres()).forEach(persistedFilmGenre -> {
+            Genre persistedGenre = persistedFilmGenre.getGenre();
+
+            if (allGenres.contains(persistedGenre)) { // already persisted
+                toPersistGenres.remove(persistedGenre);
+            } else {
+                toRemoveGenres.add(persistedFilmGenre);
             }
         });
 
-        if (genres.size() > 0) {
+        if (toPersistGenres.size() > 0) {
             changed = true;
-            toPersist.setGenresToPersist(genres);
+            toPersist.setGenresToPersist(toPersistGenres);
+        }
+
+        if (toRemoveGenres.size() > 0) {
+            changed = true;
+            toPersist.setGenresToRemove(toRemoveGenres);
         }
 
         return changed;

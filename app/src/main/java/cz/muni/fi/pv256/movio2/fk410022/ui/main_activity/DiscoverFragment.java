@@ -40,7 +40,7 @@ public class DiscoverFragment extends Fragment {
 
         initIndependentTitle(view);
         wrappers = getWrappers(view);
-        Stream.of(wrappers).forEach(w -> Utils.initializeRecyclerView(w.recyclerView, getContext()));
+        Stream.of(wrappers).forEach(w -> Utils.initializeMovieRecyclerView(w.recyclerView, getContext()));
 
         return view;
     }

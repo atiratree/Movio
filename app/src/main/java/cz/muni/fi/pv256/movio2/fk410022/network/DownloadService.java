@@ -2,14 +2,19 @@ package cz.muni.fi.pv256.movio2.fk410022.network;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.util.Pair;
+
+import com.annimon.stream.Stream;
 
 import cz.muni.fi.pv256.movio2.fk410022.BuildConfig;
 import cz.muni.fi.pv256.movio2.fk410022.DebugClass;
 import cz.muni.fi.pv256.movio2.fk410022.R;
-import cz.muni.fi.pv256.movio2.fk410022.db.Facade;
+import cz.muni.fi.pv256.movio2.fk410022.db.FilmFacade;
 import cz.muni.fi.pv256.movio2.fk410022.network.dto.Films;
 import cz.muni.fi.pv256.movio2.fk410022.network.exception.EmptyBodyException;
 import cz.muni.fi.pv256.movio2.fk410022.util.Constants;
@@ -22,15 +27,13 @@ public class DownloadService extends IntentService {
 
     private static final String TAG = DownloadService.class.getSimpleName();
 
-    private static final int ERROR_NOTIFICATION_ID = 0;
-    private static final int DOWNLOADING_NOTIFICATION_ID = 1;
-    private static final int DOWNLOADED_NOTIFICATION_ID = 2;
-
     private final MovieDbClient movieDbClient = buildClient();
     private NotificationUtils notifUtils;
 
     private int intentCount = 0;
-    private int movieCount = 0;
+
+    private int newMovieCount = 0;
+    private int updatedMovieCount = 0;
 
     private boolean networkAlreadyFailed = false;
 
@@ -69,9 +72,9 @@ public class DownloadService extends IntentService {
             if (films == null) {
                 throw new EmptyBodyException(getString(R.string.empty_body_message));
             }
-            makeDownloadedNotification(films.getResultsCount(), false);
 
-            Facade.update(type, films.getResults());
+            final Pair<Integer, Integer> updatedCount = FilmFacade.update(type, films.getResults());
+            makeDownloadedNotification(updatedCount, false);
 
             if (films.getResults() != null) {
                 Intent finishIntent = new Intent(Constants.FILM_LIST_DOWNLOAD_FINISHED).putExtra(Constants.FILM_LIST_TYPE, type);
@@ -80,23 +83,34 @@ public class DownloadService extends IntentService {
             }
         } catch (Exception x) {
             String ex = x.getMessage() == null ? x.toString() : x.getMessage();
-            notifUtils.fireNotification(ERROR_NOTIFICATION_ID, getString(R.string.error_message, type.getReadableName(), ex), true);
+            notifUtils.fireNotification(NotificationUtils.ERROR_NOTIFICATION_ID, getString(R.string.error_message, type.getReadableName(), ex), true);
         }
     }
 
     private void makeTurnNetworkOnNotification() {
         final NotificationCompat.Builder builder =
                 notifUtils.getNetworkSettingsotificationBuilder(getString(R.string.turn_network_back_on_message));
-        notifUtils.fireNotification(ERROR_NOTIFICATION_ID, builder, true);
+        notifUtils.fireNotification(NotificationUtils.ERROR_NOTIFICATION_ID, builder, true);
     }
 
     @Override
     public void onDestroy() {
-        if (movieCount != 0) {
-            makeDownloadedNotification(0, true);
+        if (newMovieCount != 0 || updatedMovieCount != 0) {
+            makeDownloadedNotification(new Pair<>(0, 0), true);
         }
-        notifUtils.cancelNotification(DOWNLOADING_NOTIFICATION_ID);
+        notifUtils.cancelNotification(NotificationUtils.DOWNLOADING_NOTIFICATION_ID);
         super.onDestroy();
+    }
+
+    public static void startFullDownload(Context context) {
+        // Animated must be first because they update lateReleaseDate. This way we get correct notifications.
+        Stream.of(FilmListType.CURRENT_YEAR_POPULAR_ANIMATED_MOVIES,
+                FilmListType.RECENT_POPULAR_MOVIES,
+                FilmListType.HIGHLY_RATED_SCIFI_MOVIES).forEach(type -> {
+            Intent intent = new Intent(context, DownloadService.class);
+            intent.putExtra(Constants.FILM_LIST_TYPE, type);
+            context.startService(intent);
+        });
     }
 
     private MovieDbClient buildClient() {
@@ -111,14 +125,40 @@ public class DownloadService extends IntentService {
         return retrofitBuilder.build().create(MovieDbClient.class);
     }
 
-    private void makeDownloadedNotification(int countIncrement, boolean strong) {
-        movieCount += countIncrement;
-        notifUtils.fireNotification(DOWNLOADED_NOTIFICATION_ID,
-                getResources().getQuantityString(R.plurals.downloaded_message, movieCount, movieCount), strong);
+    private void makeDownloadedNotification(Pair<Integer, Integer> updatedCount, boolean strong) {
+        newMovieCount += updatedCount.first;
+        updatedMovieCount += updatedCount.second;
+
+        if (newMovieCount == 0 && updatedMovieCount == 0) {
+            return;
+        }
+
+        String message;
+
+        if (newMovieCount == 0) {
+            message = getResources().getString(R.string.updated_message, getUpdatedMoviesMessagePart());
+        } else if (updatedMovieCount == 0) {
+            message = getDownloadedMessage();
+        } else {
+            message = getResources().getString(R.string.and_updated_message, getDownloadedMessage(),
+                    getUpdatedMoviesMessagePart());
+        }
+
+        notifUtils.fireNotification(NotificationUtils.DOWNLOADED_NOTIFICATION_ID, message, strong);
+    }
+
+    @NonNull
+    private String getDownloadedMessage() {
+        return getResources().getQuantityString(R.plurals.downloaded_message, newMovieCount, newMovieCount);
+    }
+
+    @NonNull
+    private String getUpdatedMoviesMessagePart() {
+        return getResources().getQuantityString(R.plurals.movies, updatedMovieCount, updatedMovieCount);
     }
 
     private void makeDownloadingNotification() {
-        String message = getString(R.string.downloading_message);
+        String message = getString(R.string.updating_message);
 
         NotificationCompat.Builder builder = notifUtils.getMainActivityNotificationBuilder(message)
                 .setAutoCancel(false)
@@ -129,6 +169,6 @@ public class DownloadService extends IntentService {
             builder.setTicker(message);
         }
 
-        notifUtils.fireNotification(DOWNLOADING_NOTIFICATION_ID, builder);
+        notifUtils.fireNotification(NotificationUtils.DOWNLOADING_NOTIFICATION_ID, builder);
     }
 }

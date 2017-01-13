@@ -117,12 +117,12 @@ public class FilmDetailFragment extends Fragment implements FilmLoader.FilmListe
 
                 fab.setOnClickListener(v -> {
                     if (isFavorite) {
-                        FavoritesManager.delete(favorite);
+                        new FavoritesManager().delete(favorite);
                     } else {
                         Favorite newFavorite = new Favorite();
                         newFavorite.setFavorite(true);
                         newFavorite.setFilm(entity);
-                        FavoritesManager.save(newFavorite);
+                        new FavoritesManager().save(newFavorite);
                     }
                 });
             }
