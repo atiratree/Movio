@@ -48,6 +48,7 @@ public class Film extends Model {
     private long ratingVoteCount;
 
     private transient Collection<Genre> genresToPersist;
+    private transient Collection<FilmGenre> genresToRemove;
 
     public Film() {
         super();
@@ -140,6 +141,14 @@ public class Film extends Model {
 
     public void setGenresToPersist(Collection<Genre> genresToPersist) {
         this.genresToPersist = genresToPersist;
+    }
+
+    public Collection<FilmGenre> getGenresToRemove() {
+        return genresToRemove == null ? Collections.emptyList() : genresToRemove;
+    }
+
+    public void setGenresToRemove(Collection<FilmGenre> genresToRemove) {
+        this.genresToRemove = genresToRemove;
     }
 
     public List<FilmGenre> getGenres() {

@@ -9,7 +9,7 @@ import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 
 public class Utils {
 
-    public static void initializeRecyclerView(RecyclerView recyclerView, Context context) {
+    public static void initializeMovieRecyclerView(RecyclerView recyclerView, Context context) {
         if (recyclerView == null || context == null) {
             return;
         }
@@ -25,5 +25,6 @@ public class Utils {
                 listener.onScrollStateChanged(null, newState);
             }
         });
+        recyclerView.setAdapter(new MovieAdapter("", context));
     }
 }

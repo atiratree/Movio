@@ -29,16 +29,4 @@ public class Films {
         this.results = results;
     }
 
-    public int getResultsCount() {
-        return results == null ? 0 : results.length;
-    }
-
-    public List<cz.muni.fi.pv256.movio2.fk410022.db.model.Film> toEntityList() throws ParseDtoException {
-        try {
-            return (results == null) ? Collections.emptyList() :
-                    Stream.of(results).map(Film::toEntity).collect(Collectors.toList());
-        } catch (Exception x) {
-            throw new ParseDtoException("Couldn't parse Films dto!", x);
-        }
-    }
 }

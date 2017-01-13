@@ -29,7 +29,7 @@ public class FavoritesFragment extends Fragment implements FavoriteFilmsLoader.F
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favorites, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_favorites);
-        Utils.initializeRecyclerView(recyclerView, getContext());
+        Utils.initializeMovieRecyclerView(recyclerView, getContext());
 
         return view;
     }
