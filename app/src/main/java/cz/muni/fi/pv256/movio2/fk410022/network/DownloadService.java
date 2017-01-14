@@ -11,10 +11,16 @@ import android.support.v4.util.Pair;
 
 import com.annimon.stream.Stream;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import cz.muni.fi.pv256.movio2.fk410022.BuildConfig;
 import cz.muni.fi.pv256.movio2.fk410022.DebugClass;
 import cz.muni.fi.pv256.movio2.fk410022.R;
 import cz.muni.fi.pv256.movio2.fk410022.db.FilmFacade;
+import cz.muni.fi.pv256.movio2.fk410022.network.dto.Film;
 import cz.muni.fi.pv256.movio2.fk410022.network.dto.Films;
 import cz.muni.fi.pv256.movio2.fk410022.network.exception.EmptyBodyException;
 import cz.muni.fi.pv256.movio2.fk410022.util.Constants;
@@ -49,51 +55,6 @@ public class DownloadService extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-        if (!NetworkUtils.isNetworkAvailable(getApplicationContext())) {
-            if (!networkAlreadyFailed) {
-                makeTurnNetworkOnNotification();
-                networkAlreadyFailed = true;
-            }
-            return;
-        }
-
-        FilmListType type = (FilmListType) intent.getSerializableExtra(Constants.FILM_LIST_TYPE);
-        if (type == null) {
-            throw new UnsupportedOperationException("Invalid FilmListType: couldn't make a request.");
-        }
-
-        retrofit2.Call<Films> requestCall = type.makeRequest(movieDbClient);
-
-        try {
-            makeDownloadingNotification();
-            retrofit2.Response<cz.muni.fi.pv256.movio2.fk410022.network.dto.Films> response = requestCall.execute();
-            Films films = response.body();
-            if (films == null) {
-                throw new EmptyBodyException(getString(R.string.empty_body_message));
-            }
-
-            final Pair<Integer, Integer> updatedCount = FilmFacade.update(type, films.getResults());
-            makeDownloadedNotification(updatedCount, false);
-
-            if (films.getResults() != null) {
-                Intent finishIntent = new Intent(Constants.FILM_LIST_DOWNLOAD_FINISHED).putExtra(Constants.FILM_LIST_TYPE, type);
-                finishIntent.putExtra(Constants.FILM_LIST_TYPE, type);
-                LocalBroadcastManager.getInstance(this).sendBroadcast(finishIntent);
-            }
-        } catch (Exception x) {
-            String ex = x.getMessage() == null ? x.toString() : x.getMessage();
-            notifUtils.fireNotification(NotificationUtils.ERROR_NOTIFICATION_ID, getString(R.string.error_message, type.getReadableName(), ex), true);
-        }
-    }
-
-    private void makeTurnNetworkOnNotification() {
-        final NotificationCompat.Builder builder =
-                notifUtils.getNetworkSettingsotificationBuilder(getString(R.string.turn_network_back_on_message));
-        notifUtils.fireNotification(NotificationUtils.ERROR_NOTIFICATION_ID, builder, true);
-    }
-
-    @Override
     public void onDestroy() {
         if (newMovieCount != 0 || updatedMovieCount != 0) {
             makeDownloadedNotification(new Pair<>(0, 0), true);
@@ -111,6 +72,72 @@ public class DownloadService extends IntentService {
             intent.putExtra(Constants.FILM_LIST_TYPE, type);
             context.startService(intent);
         });
+    }
+
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        if (!NetworkUtils.isNetworkAvailable(getApplicationContext())) {
+            if (!networkAlreadyFailed) {
+                makeTurnNetworkOnNotification();
+                networkAlreadyFailed = true;
+            }
+            return;
+        }
+
+        FilmListType type = (FilmListType) intent.getSerializableExtra(Constants.FILM_LIST_TYPE);
+        if (type == null) {
+            throw new UnsupportedOperationException("Invalid FilmListType: couldn't make a request.");
+        }
+
+        try {
+            makeDownloadingNotification();
+            List<Film> films = downloadAllPages(type);
+
+            Pair<Integer, Integer> updatedCount = FilmFacade.update(type, films);
+
+            makeDownloadedNotification(updatedCount, false);
+            notifyDownloadFinished(type);
+        } catch (Exception x) {
+            String ex = x.getMessage() == null ? x.toString() : x.getMessage();
+            notifUtils.fireNotification(NotificationUtils.ERROR_NOTIFICATION_ID, getString(R.string.error_message, type.getReadableName(), ex), true);
+        }
+    }
+
+    private List<Film> downloadAllPages(FilmListType type) throws IOException, EmptyBodyException {
+        retrofit2.Call<Films> requestCall;
+        retrofit2.Response<cz.muni.fi.pv256.movio2.fk410022.network.dto.Films> response;
+        List<Film> result = new ArrayList<>();
+
+        for (int i = 1; i < type.getDefaultNumberOfPages() + 1; i++) {
+            requestCall = type.makeRequest(movieDbClient, i);
+            response = requestCall.execute();
+
+            Films films = response.body();
+
+            if (films == null) {
+                throw new EmptyBodyException(getString(R.string.empty_body_message));
+            }
+
+            result.addAll(Arrays.asList(films.getResults()));
+
+            if (films.getTotalPages() <= i) {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    private void notifyDownloadFinished(FilmListType type) {
+        Intent finishIntent = new Intent(Constants.FILM_LIST_DOWNLOAD_FINISHED).putExtra(Constants.FILM_LIST_TYPE, type);
+        finishIntent.putExtra(Constants.FILM_LIST_TYPE, type);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(finishIntent);
+    }
+
+    private void makeTurnNetworkOnNotification() {
+        final NotificationCompat.Builder builder =
+                notifUtils.getNetworkSettingsotificationBuilder(getString(R.string.turn_network_back_on_message));
+        notifUtils.fireNotification(NotificationUtils.ERROR_NOTIFICATION_ID, builder, true);
     }
 
     private MovieDbClient buildClient() {

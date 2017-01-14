@@ -22,8 +22,8 @@
     <string name="recent_popular_movies">New Popular</string>
     <string name="highly_rated_scifi_movies">Highly Rated Sci-fi</string>
     <string name="current_year_popular_animated_movies" tools:ignore="PluralsCandidate">Popular Animated in %1$d</string>
-    <string name="accessibility_recent_popular_movies">Recent Popular Movies. Scrollable horizontal list bellow</string>
-    <string name="accessibility_current_year_popular_animated_movies" tools:ignore="PluralsCandidate">%1$d Popular Animated Movies. Scrollable horizontal list bellow</string>
+    <string name="accessibility_recent_popular_movies">New Popular Movies. Scrollable horizontal list bellow</string>
+    <string name="accessibility_current_year_popular_animated_movies" tools:ignore="PluralsCandidate">Popular Animated Movies in %1$d. Scrollable horizontal list bellow</string>
     <string name="accessibility_highly_rated_scifi_movies">Highly Rated Sci-fi Movies. Scrollable horizontal list bellow</string>
     <string name="accessibility_favorites">Favorites. Scrollable horizontal list bellow</string>
 
@@ -42,13 +42,12 @@
 
     <!-- Film details -->
     <string name="rating_value">%1$.1f</string>
-    <string name="accessibility_star">Star, add to favorites</string>  <!-- FIXME: this message -->
     <string name="accessibility_add_to_favorites">Add to favorites</string>
     <string name="accessibility_poster">Poster</string>
     <string name="accessibility_backdrop">Backdrop</string>
     <string name="accessibility_backdrop_of">Backdrop of %1$s</string>
     <string name="accessibility_poster_of">Poster of %1$s</string>
-    <string name="accessibility_poster_rated">Poster of %1$s rated %2$s</string>
+    <string name="accessibility_poster_rated">%1$s rated %2$s. Button</string>
 
     <plurals name="downloaded_message">
         <item quantity="one">Downloaded %d movie</item>

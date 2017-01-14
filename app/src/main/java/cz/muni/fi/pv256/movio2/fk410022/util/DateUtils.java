@@ -11,6 +11,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import cz.muni.fi.pv256.movio2.fk410022.network.MovieDbClient;
+
 public class DateUtils {
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 
@@ -46,9 +48,9 @@ public class DateUtils {
         return today.getTime();
     }
 
-    public static Date getTwoMonthsBack() {
+    public static Date getNewMoviesMonthsBack() {
         Calendar twoMonthsBack = Calendar.getInstance();
-        twoMonthsBack.add(Calendar.MONTH, -2);
+        twoMonthsBack.add(Calendar.MONTH, - MovieDbClient.NEW_MOVIES_MONTHS_BACK);
         nullTime(twoMonthsBack);
 
         return twoMonthsBack.getTime();

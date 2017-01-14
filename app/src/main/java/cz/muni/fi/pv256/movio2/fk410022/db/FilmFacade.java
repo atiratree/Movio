@@ -25,7 +25,7 @@ public class FilmFacade {
      * @param films films to be checked and potentially persisted
      * @return Pair, pair.first == number of new movies, pair.second == number of changed movies
      */
-    public static Pair<Integer, Integer> update(FilmListType type, cz.muni.fi.pv256.movio2.fk410022.network.dto.Film[] films) {
+    public static Pair<Integer, Integer> update(FilmListType type, List<cz.muni.fi.pv256.movio2.fk410022.network.dto.Film> films) {
         Integer newCount = 0;
 
         Date currentYear = null;

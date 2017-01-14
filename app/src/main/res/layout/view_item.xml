@@ -43,6 +43,7 @@
                 android:background="@android:color/transparent"
                 android:ellipsize="end"
                 android:gravity="center_vertical"
+                android:importantForAccessibility="no"
                 android:maxLines="2"/>
 
             <ImageView
@@ -54,7 +55,6 @@
                 android:layout_toLeftOf="@+id/view_item_rating"
                 android:layout_toStartOf="@+id/view_item_rating"
                 android:background="@android:color/transparent"
-                android:contentDescription="@string/accessibility_star"
                 android:gravity="center_vertical"/>
 
             <TextView
@@ -65,8 +65,9 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:background="@android:color/transparent"
-                android:gravity="center_vertical"
                 android:ellipsize="none"
+                android:gravity="center_vertical"
+                android:importantForAccessibility="no"
                 android:maxLines="1"/>
         </RelativeLayout>
     </RelativeLayout>

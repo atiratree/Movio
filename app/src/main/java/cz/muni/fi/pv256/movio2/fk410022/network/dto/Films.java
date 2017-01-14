@@ -11,22 +11,20 @@ import cz.muni.fi.pv256.movio2.fk410022.network.exception.ParseDtoException;
 public class Films {
     private int page;
 
+    private int total_pages;
+
     private Film[] results;
 
     public int getPage() {
         return page;
     }
 
-    public void setPage(int page) {
-        this.page = page;
+    public int getTotalPages() {
+        return total_pages;
     }
 
     public Film[] getResults() {
         return results;
-    }
-
-    public void setResults(Film[] results) {
-        this.results = results;
     }
 
 }

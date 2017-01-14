@@ -106,7 +106,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
             }
         });
 
-        holder.poster.setOnClickListener(view -> mListener.onItemClick(film.getMovieDbId()));
+        holder.itemView.setOnClickListener(view -> mListener.onItemClick(film.getMovieDbId()));
         holder.poster.setContentDescription(context.getString(R.string.accessibility_poster_rated, film.getTitle(), rating));
         holder.title.setText(film.getTitle());
         holder.rating.setText(rating);
