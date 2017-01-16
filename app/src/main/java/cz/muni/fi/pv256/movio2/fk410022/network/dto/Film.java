@@ -25,12 +25,22 @@ public class Film {
     private long vote_count;
     private Integer[] genre_ids;
 
+    private transient Date lateReleaseDate;
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Date getLateReleaseDate() {
+        return lateReleaseDate;
+    }
+
+    public void setLateReleaseDate(Date lateReleaseDate) {
+        this.lateReleaseDate = lateReleaseDate;
     }
 
     public boolean updateValuesOfDbFilm(cz.muni.fi.pv256.movio2.fk410022.db.model.Film toPersist) {
@@ -86,6 +96,11 @@ public class Film {
             changed = true;
         }
 
+        if (lateReleaseDate != null ? !lateReleaseDate.equals(toPersist.getLateReleaseDate()) : toPersist.getLateReleaseDate() != null) {
+            toPersist.setLateReleaseDate(lateReleaseDate);
+            return true;
+        }
+
         // check and prepare genres
         List<Genre> allRestGenres = Stream.of(genre_ids).map(Genre::fromId).filter(v -> v != null).collect(Collectors.toList());
         EnumSet<Genre> allGenres = allRestGenres.isEmpty() ? EnumSet.noneOf(Genre.class) : EnumSet.copyOf(allRestGenres);
@@ -122,35 +137,12 @@ public class Film {
 
         Film film = (Film) o;
 
-        if (Double.compare(film.popularity, popularity) != 0) return false;
-        if (Double.compare(film.vote_average, vote_average) != 0) return false;
-        if (id != null ? !id.equals(film.id) : film.id != null) return false;
-        if (original_title != null ? !original_title.equals(film.original_title) : film.original_title != null)
-            return false;
-        if (overview != null ? !overview.equals(film.overview) : film.overview != null)
-            return false;
-        if (release_date != null ? !release_date.equals(film.release_date) : film.release_date != null)
-            return false;
-        if (backdrop_path != null ? !backdrop_path.equals(film.backdrop_path) : film.backdrop_path != null)
-            return false;
-        return poster_path != null ? poster_path.equals(film.poster_path) : film.poster_path == null;
+        return id != null ? id.equals(film.id) : film.id == null;
     }
 
     @Override
     public int hashCode() {
-        int result;
-        long temp;
-        result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (original_title != null ? original_title.hashCode() : 0);
-        result = 31 * result + (overview != null ? overview.hashCode() : 0);
-        result = 31 * result + (release_date != null ? release_date.hashCode() : 0);
-        result = 31 * result + (backdrop_path != null ? backdrop_path.hashCode() : 0);
-        result = 31 * result + (poster_path != null ? poster_path.hashCode() : 0);
-        temp = Double.doubleToLongBits(popularity);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(vote_average);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        return result;
+        return id != null ? id.hashCode() : 0;
     }
 }
 

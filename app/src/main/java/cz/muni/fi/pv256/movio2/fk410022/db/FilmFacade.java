@@ -8,30 +8,22 @@ import com.activeandroid.query.Select;
 import com.annimon.stream.Stream;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
 import cz.muni.fi.pv256.movio2.fk410022.db.manager.FilmGenreManager;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.FilmGenre;
-import cz.muni.fi.pv256.movio2.fk410022.network.FilmListType;
-import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 
 public class FilmFacade {
 
     /**
-     * @param type  to be saved
      * @param films films to be checked and potentially persisted
      * @return Pair, pair.first == number of new movies, pair.second == number of changed movies
      */
-    public static Pair<Integer, Integer> update(FilmListType type, List<cz.muni.fi.pv256.movio2.fk410022.network.dto.Film> films) {
+    public static Pair<Integer, Integer> update(Collection<cz.muni.fi.pv256.movio2.fk410022.network.dto.Film> films) {
         Integer newCount = 0;
-
-        Date currentYear = null;
-        if (type == FilmListType.CURRENT_YEAR_POPULAR_ANIMATED_MOVIES) {
-            currentYear = DateUtils.getCurrentYear();
-        }
 
         List<Film> dbFilms = new Select().from(Film.class).execute();
 
@@ -51,8 +43,7 @@ public class FilmFacade {
                 dbFilm = new Film();
             }
 
-            boolean updateLateReleaseDate = updateLateReleaseDate(type, currentYear, dbFilm);
-            if (film.updateValuesOfDbFilm(dbFilm) || updateLateReleaseDate) {
+            if (film.updateValuesOfDbFilm(dbFilm)) {
                 toUpdate.add(dbFilm);
             }
         }
@@ -84,17 +75,5 @@ public class FilmFacade {
         }
 
         return new Pair<>(newCount, toUpdate.size() - newCount);
-    }
-
-    private static boolean updateLateReleaseDate(FilmListType type, Date currentYear, Film film) {
-        if (type != FilmListType.CURRENT_YEAR_POPULAR_ANIMATED_MOVIES) {
-            return false;
-        }
-
-        if (currentYear != null ? !currentYear.equals(film.getLateReleaseDate()) : film.getLateReleaseDate() != null) {
-            film.setLateReleaseDate(currentYear);
-            return true;
-        }
-        return false;
     }
 }

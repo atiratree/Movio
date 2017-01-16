@@ -9,12 +9,12 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
 
-import com.annimon.stream.Stream;
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import cz.muni.fi.pv256.movio2.fk410022.BuildConfig;
 import cz.muni.fi.pv256.movio2.fk410022.DebugClass;
@@ -36,13 +36,6 @@ public class DownloadService extends IntentService {
     private final MovieDbClient movieDbClient = buildClient();
     private NotificationUtils notifUtils;
 
-    private int intentCount = 0;
-
-    private int newMovieCount = 0;
-    private int updatedMovieCount = 0;
-
-    private boolean networkAlreadyFailed = false;
-
     public DownloadService() {
         super(TAG);
     }
@@ -56,60 +49,70 @@ public class DownloadService extends IntentService {
 
     @Override
     public void onDestroy() {
-        if (newMovieCount != 0 || updatedMovieCount != 0) {
-            makeDownloadedNotification(new Pair<>(0, 0), true);
-        }
         notifUtils.cancelNotification(NotificationUtils.DOWNLOADING_NOTIFICATION_ID);
         super.onDestroy();
     }
 
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        notifUtils.cancelNotification(NotificationUtils.DOWNLOADING_NOTIFICATION_ID);
+        super.onTaskRemoved(rootIntent);
+    }
+
     public static void startFullDownload(Context context) {
-        // Animated must be first because they update lateReleaseDate. This way we get correct notifications.
-        Stream.of(FilmListType.CURRENT_YEAR_POPULAR_ANIMATED_MOVIES,
-                FilmListType.RECENT_POPULAR_MOVIES,
-                FilmListType.HIGHLY_RATED_SCIFI_MOVIES).forEach(type -> {
-            Intent intent = new Intent(context, DownloadService.class);
-            intent.putExtra(Constants.FILM_LIST_TYPE, type);
-            context.startService(intent);
-        });
+        startDownload(context, null);
+    }
+
+    public static void startDownload(Context context, FilmListType type) {
+        Intent intent = new Intent(context, DownloadService.class);
+        intent.putExtra(Constants.FILM_LIST_TYPE, type);
+        context.startService(intent);
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         if (!NetworkUtils.isNetworkAvailable(getApplicationContext())) {
-            if (!networkAlreadyFailed) {
-                makeTurnNetworkOnNotification();
-                networkAlreadyFailed = true;
-            }
+            makeTurnNetworkOnNotification();
             return;
         }
-
         FilmListType type = (FilmListType) intent.getSerializableExtra(Constants.FILM_LIST_TYPE);
-        if (type == null) {
-            throw new UnsupportedOperationException("Invalid FilmListType: couldn't make a request.");
-        }
+        boolean downloadAll = (type == null);
 
         try {
             makeDownloadingNotification();
-            List<Film> films = downloadAllPages(type);
 
-            Pair<Integer, Integer> updatedCount = FilmFacade.update(type, films);
+            Collection<Film> films = downloadAll ? downloadAllTypes() : downloadAllPages(type);
+            Pair<Integer, Integer> updatedCount = FilmFacade.update(films);
 
             makeDownloadedNotification(updatedCount, false);
             notifyDownloadFinished(type);
         } catch (Exception x) {
             String ex = x.getMessage() == null ? x.toString() : x.getMessage();
-            notifUtils.fireNotification(NotificationUtils.ERROR_NOTIFICATION_ID, getString(R.string.error_message, type.getReadableName(), ex), true);
+            String message = getString(R.string.error_message,
+                    downloadAll ? getString(R.string.movies) : type.getReadableName(), ex);
+            notifUtils.fireNotification(NotificationUtils.ERROR_NOTIFICATION_ID, message, true);
         }
     }
 
-    private List<Film> downloadAllPages(FilmListType type) throws IOException, EmptyBodyException {
+    private Collection<Film> downloadAllTypes() throws IOException, EmptyBodyException {
+        HashMap<Film, Film> result = new HashMap<>();
+
+        for (FilmListType type : FilmListType.getRequestOrder()) {
+            for (Film film : downloadAllPages(type)) {
+                result.put(film, film);
+            }
+        }
+
+        return result.values();
+    }
+
+    private Collection<Film> downloadAllPages(FilmListType type) throws IOException, EmptyBodyException {
         retrofit2.Call<Films> requestCall;
         retrofit2.Response<cz.muni.fi.pv256.movio2.fk410022.network.dto.Films> response;
-        List<Film> result = new ArrayList<>();
+        Set<Film> result = new HashSet<>();
 
         for (int i = 1; i < type.getDefaultNumberOfPages() + 1; i++) {
-            requestCall = type.makeRequest(movieDbClient, i);
+            requestCall = type.prepareRequestCall(movieDbClient, i);
             response = requestCall.execute();
 
             Films films = response.body();
@@ -124,6 +127,8 @@ public class DownloadService extends IntentService {
                 break;
             }
         }
+
+        type.processRequestResult(result);
 
         return result;
     }
@@ -153,8 +158,8 @@ public class DownloadService extends IntentService {
     }
 
     private void makeDownloadedNotification(Pair<Integer, Integer> updatedCount, boolean strong) {
-        newMovieCount += updatedCount.first;
-        updatedMovieCount += updatedCount.second;
+        int newMovieCount = updatedCount.first;
+        int updatedMovieCount = updatedCount.second;
 
         if (newMovieCount == 0 && updatedMovieCount == 0) {
             return;
@@ -163,24 +168,24 @@ public class DownloadService extends IntentService {
         String message;
 
         if (newMovieCount == 0) {
-            message = getResources().getString(R.string.updated_message, getUpdatedMoviesMessagePart());
+            message = getResources().getString(R.string.updated_message, getUpdatedMoviesMessagePart(updatedMovieCount));
         } else if (updatedMovieCount == 0) {
-            message = getDownloadedMessage();
+            message = getDownloadedMessage(newMovieCount);
         } else {
-            message = getResources().getString(R.string.and_updated_message, getDownloadedMessage(),
-                    getUpdatedMoviesMessagePart());
+            message = getResources().getString(R.string.and_updated_message, getDownloadedMessage(newMovieCount),
+                    getUpdatedMoviesMessagePart(updatedMovieCount));
         }
 
         notifUtils.fireNotification(NotificationUtils.DOWNLOADED_NOTIFICATION_ID, message, strong);
     }
 
     @NonNull
-    private String getDownloadedMessage() {
+    private String getDownloadedMessage(int newMovieCount) {
         return getResources().getQuantityString(R.plurals.downloaded_message, newMovieCount, newMovieCount);
     }
 
     @NonNull
-    private String getUpdatedMoviesMessagePart() {
+    private String getUpdatedMoviesMessagePart(int updatedMovieCount) {
         return getResources().getQuantityString(R.plurals.movies, updatedMovieCount, updatedMovieCount);
     }
 
@@ -189,12 +194,8 @@ public class DownloadService extends IntentService {
 
         NotificationCompat.Builder builder = notifUtils.getMainActivityNotificationBuilder(message)
                 .setAutoCancel(false)
+                .setTicker(message)
                 .setOngoing(true);
-
-        if (intentCount == 0) {
-            intentCount++;
-            builder.setTicker(message);
-        }
 
         notifUtils.fireNotification(NotificationUtils.DOWNLOADING_NOTIFICATION_ID, builder);
     }
