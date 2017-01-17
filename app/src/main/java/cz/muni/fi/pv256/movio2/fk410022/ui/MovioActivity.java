@@ -13,7 +13,7 @@ public abstract class MovioActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-        setTitle(R.string.movio_activity_title);
+        setTitle(R.string.movio);
     }
 
     @Override

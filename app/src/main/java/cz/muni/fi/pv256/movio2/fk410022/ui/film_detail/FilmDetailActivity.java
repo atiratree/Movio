@@ -3,9 +3,9 @@ package cz.muni.fi.pv256.movio2.fk410022.ui.film_detail;
 import android.os.Bundle;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
-import cz.muni.fi.pv256.movio2.fk410022.ui.MainMenuActivity;
+import cz.muni.fi.pv256.movio2.fk410022.ui.BaseMenuActivity;
 
-public class FilmDetailActivity extends MainMenuActivity {
+public class FilmDetailActivity extends BaseMenuActivity {
     private static final String TAG = FilmDetailActivity.class.getSimpleName();
     public static final String FILM_PARAM = "FILM_PARAM";
 

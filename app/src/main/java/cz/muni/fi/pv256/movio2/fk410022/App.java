@@ -30,6 +30,7 @@ public class App extends Application {
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
                 .defaultDisplayImageOptions(options)
+                .memoryCacheSizePercentage(35)
                 .build();
         ImageLoader.getInstance().init(config);
     }
