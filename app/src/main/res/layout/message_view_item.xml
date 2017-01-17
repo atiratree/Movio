@@ -5,7 +5,7 @@
     android:layout_gravity="center">
 
     <TextView
-        android:id="@+id/view_item_title"
+        android:id="@+id/view_item_message"
         style="@style/WhiteCardLargeText"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -1,12 +1,11 @@
-package cz.muni.fi.pv256.movio2.fk410022;
+package cz.muni.fi.pv256.movio2.fk410022.ui;
 
 import android.support.annotation.NonNull;
 import android.util.SparseArray;
 
-/**
- * Created by suomiy on 10/3/16.
- */
-enum Theme {
+import cz.muni.fi.pv256.movio2.fk410022.R;
+
+public enum Theme {
     APP_THEME(R.style.AppTheme), MY_THEME(R.style.MyTheme);
 
     private static SparseArray<Theme> sparseArray;

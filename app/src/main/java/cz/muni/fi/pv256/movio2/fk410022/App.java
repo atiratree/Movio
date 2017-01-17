@@ -4,9 +4,12 @@ import android.app.Application;
 import android.os.Build;
 import android.os.StrictMode;
 
-/**
- * Created by suomiy on 9/20/16.
- */
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
+import cz.muni.fi.pv256.movio2.fk410022.util.image.SizeHelper;
+
 public class App extends Application {
 
     @Override
@@ -16,6 +19,19 @@ public class App extends Application {
         if (BuildConfig.DEBUG) {
             initStrictMode();
         }
+
+        SizeHelper.init(getApplicationContext());
+
+        // global configuration and initialization of ImageLoader
+        DisplayImageOptions options = new DisplayImageOptions.Builder()
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .build();
+
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+                .defaultDisplayImageOptions(options)
+                .build();
+        ImageLoader.getInstance().init(config);
     }
 
     private void initStrictMode() {
