@@ -3,21 +3,20 @@ package cz.muni.fi.pv256.movio2.fk410022.ui;
 import android.support.annotation.NonNull;
 import android.util.SparseArray;
 
+import com.annimon.stream.Stream;
+
 import cz.muni.fi.pv256.movio2.fk410022.R;
 
 public enum Theme {
     APP_THEME(R.style.AppTheme), MY_THEME(R.style.MyTheme);
 
-    private static SparseArray<Theme> sparseArray;
-    private int value;
+    private static final SparseArray<Theme> sparseArray;
+    private final int value;
 
     static {
         Theme[] values = Theme.values();
         sparseArray = new SparseArray<>(values.length);
-
-        for (Theme dp : values) {
-            sparseArray.put(dp.getValue(), dp);
-        }
+        Stream.of(values).forEach(t -> sparseArray.put(t.getValue(), t));
     }
 
     Theme(int value) {

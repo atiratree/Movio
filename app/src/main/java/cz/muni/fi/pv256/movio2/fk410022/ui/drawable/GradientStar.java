@@ -10,6 +10,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 
 /**
  * inspired by http://www.therealjoshua.com/2012/12/imageviews-and-stars/
@@ -68,12 +69,11 @@ public class GradientStar extends Drawable {
     protected void onBoundsChange(Rect bounds) {
         super.onBoundsChange(bounds);
 
-        int minDim = Math.min(bounds.width() - paddingLeft - paddingRight,
+        int bigB = Math.min(bounds.width() - paddingLeft - paddingRight,
                 bounds.height() - paddingTop - paddingBottom);
         paint.setShader(new LinearGradient(0, 0, 0, getBounds().height(), endColor, startColor, Shader.TileMode.CLAMP));
 
-        double bigHypot = (minDim / Math.cos(Math.toRadians(STAR_ANGLE_HALF)));
-        double bigB = minDim;
+        double bigHypot = (bigB / Math.cos(Math.toRadians(STAR_ANGLE_HALF)));
         double bigA = Math.tan(Math.toRadians(18)) * bigB;
 
         double littleHypot = bigHypot / (2 + Math.cos(Math.toRadians(STAR_OPP_ANGLE)) + Math.cos(Math.toRadians(STAR_OPP_ANGLE)));
@@ -94,7 +94,7 @@ public class GradientStar extends Drawable {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         canvas.drawPath(path, linePaint);
         canvas.drawPath(path, paint);
     }

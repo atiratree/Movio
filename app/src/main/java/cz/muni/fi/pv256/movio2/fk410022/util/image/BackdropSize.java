@@ -6,7 +6,7 @@ enum BackdropSize implements Size {
     W1280(1280),
     ORIGINAL(Integer.MAX_VALUE);
 
-    private int size;
+    private final int size;
 
     BackdropSize(int size) {
         this.size = size;

@@ -68,6 +68,6 @@ public class SizeHelper {
     }
 
     private static int getMaxPosterWidth(Context context) {
-        return context.getResources().getDimensionPixelSize(R.dimen.poster_detail_width);
+        return context.getResources().getDimensionPixelSize(R.dimen.poster_width);
     }
 }

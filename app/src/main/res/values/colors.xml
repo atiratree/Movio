@@ -14,10 +14,11 @@
     <color name="my_theme_accent">#a450ff</color>
     <color name="my_theme_background">#82b1ff</color>
     <color name="palette_default">#595959</color>
-    <color name="white">#ffffff</color>
+    <color name="white">#fff</color>
     <color name="transparent_white">#bfffffff</color>
     <color name="star_start_gradient">#fd6b1b</color>
     <color name="star_end_gradient">#d5ba5a</color>
     <color name="star_line_start_gradient">#B8B4B0</color>
     <color name="star_line_end_gradient">#e7e5d8</color>
+    <color name="fab_warning">#e57373</color>
 </resources>

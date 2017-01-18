@@ -1,17 +1,41 @@
-<resources>
-    <string name="app_name">FK410022</string>
+<resources  xmlns:tools="http://schemas.android.com/tools">
     <string name="movio">Movio</string>
     <string name="change_theme">Change Theme</string>
     <string name="refresh">Refresh Movies</string>
     <string name="no_connection">No Connection</string>
     <string name="no_data">No Data Received</string>
     <string name="downloading">Downloading…</string>
-    <string name="recent_popular_movies">Recent Popular Movies</string>
-    <string name="highly_rated_scifi_movies">Highly Rated Sci-fi Movies</string>
-    <string name="current_year_popular_independent_movies">%1$d Popular Independent Movies</string>
-    <string name="downloaded_message">Downloaded %1$d films</string>
+    <string name="no_favorites">Add movies to favorites to see this tab.</string>
+    <string name="recent_popular_movies">New Popular</string>
+    <string name="highly_rated_scifi_movies">Highly Rated Sci-fi</string>
+    <string name="current_year_popular_animated_movies" tools:ignore="PluralsCandidate">Popular Animated in %1$d</string>
     <string name="empty_body_message">Received Empty body!</string>
-    <string name="downloading_message">Downloading  %1$s</string>
+    <string name="downloading_message">Downloading Movies</string>
     <string name="error_message">Downloading of %1$s failed! Error occurred: %2$s</string>
-    <string name="turn_network_back_on_message">Network unavailable. Please turn the network on.</string>
+    <string name="turn_network_back_on_message">Network unavailable. Tap to show WiFi settings.</string>
+    <string name="rating_value">%1$.1f</string>
+    <string name="favorites">Favorites</string>
+    <string name="show_favorites">Favorites</string>
+    <string name="close_detail">Close Detail</string>
+    <string name="movies">Movies</string>
+    <string name="show_discover">Movies</string>
+
+
+
+    <string name="accessibility_star">Star, add to favorites</string>
+    <string name="accessibility_add_to_favorites">Add to favorites</string>
+    <string name="accessibility_poster">Poster</string>
+    <string name="accessibility_backdrop">Backdrop</string>
+    <string name="accessibility_backdrop_of">Backdrop of %1$s</string>
+    <string name="accessibility_poster_of">Poster of %1$s</string>
+    <string name="accessibility_poster_rated">Poster of %1$s rated %2$s</string>
+    <string name="accessibility_recent_popular_movies">Recent Popular Movies. Scrollable horizontal list bellow</string>
+    <string name="accessibility_current_year_popular_animated_movies" tools:ignore="PluralsCandidate">%1$d Popular Animated Movies. Scrollable horizontal list bellow</string>
+    <string name="accessibility_highly_rated_scifi_movies">Highly Rated Sci-fi Movies. Scrollable horizontal list bellow</string>
+    <string name="accessibility_favorites">Favorites. Scrollable horizontal list bellow</string>
+
+    <plurals name="downloaded_message">
+        <item quantity="one">Downloaded %d film</item>
+        <item quantity="other">Downloaded %d films</item>
+    </plurals>
 </resources>

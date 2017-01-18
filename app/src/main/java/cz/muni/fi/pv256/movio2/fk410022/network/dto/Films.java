@@ -1,6 +1,9 @@
 package cz.muni.fi.pv256.movio2.fk410022.network.dto;
 
-import java.util.ArrayList;
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
+
+import java.util.Collections;
 import java.util.List;
 
 import cz.muni.fi.pv256.movio2.fk410022.network.exception.ParseDtoException;
@@ -19,7 +22,6 @@ public class Films {
     }
 
     public Film[] getResults() {
-
         return results;
     }
 
@@ -31,18 +33,12 @@ public class Films {
         return results == null ? 0 : results.length;
     }
 
-    public List<cz.muni.fi.pv256.movio2.fk410022.model.Film> toEntityList() throws ParseDtoException {
-        List<cz.muni.fi.pv256.movio2.fk410022.model.Film> films = new ArrayList<>();
-
+    public List<cz.muni.fi.pv256.movio2.fk410022.db.model.Film> toEntityList() throws ParseDtoException {
         try {
-            if (results != null) {
-                for (Film film : results) {
-                    films.add(film.toEntity());
-                }
-            }
+            return (results == null) ? Collections.emptyList() :
+                    Stream.of(results).map(Film::toEntity).collect(Collectors.toList());
         } catch (Exception x) {
             throw new ParseDtoException("Couldn't parse Films dto!", x);
         }
-        return films;
     }
 }

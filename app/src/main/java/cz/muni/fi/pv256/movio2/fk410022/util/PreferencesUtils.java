@@ -9,7 +9,7 @@ public class PreferencesUtils {
     private static final String THEME_PREF_KEY = "THEME_PREF_KEY";
     private static final String MOVIO_SHARED_PREFERENCES = "MOVIO_SHARED_PREFERENCES";
 
-    private Context context;
+    private final Context context;
 
     public PreferencesUtils(Context context) {
         this.context = context;
