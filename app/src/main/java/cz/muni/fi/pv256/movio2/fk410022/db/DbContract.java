@@ -1,4 +1,4 @@
-package cz.muni.fi.pv256.movio2.fk410022.db.provider;
+package cz.muni.fi.pv256.movio2.fk410022.db;
 
 import android.provider.BaseColumns;
 
@@ -15,6 +15,7 @@ public interface DbContract {
         String TITLE = "title";
         String DESCRIPTION = "description";
         String RELEASE_DATE = "release_date";
+        String LATE_RELEASE_DATE = "late_release_date";
         String POSTER_PATH_ID = "poster_path_id";
         String BACKDROP_PATH_ID = "backdrop_path_id";
         String POPULARITY = "popularity";

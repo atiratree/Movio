@@ -13,6 +13,10 @@ import cz.muni.fi.pv256.movio2.fk410022.ui.main_activity.MainActivity;
 
 public class NotificationUtils {
 
+    public static final int ERROR_NOTIFICATION_ID = 0;
+    public static final int DOWNLOADING_NOTIFICATION_ID = 1;
+    public static final int DOWNLOADED_NOTIFICATION_ID = 2;
+
     private final Context context;
     private final NotificationManager notificationManager;
 

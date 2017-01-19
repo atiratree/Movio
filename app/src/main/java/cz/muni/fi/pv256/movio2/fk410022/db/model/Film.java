@@ -11,8 +11,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import cz.muni.fi.pv256.movio2.fk410022.db.DbContract;
 import cz.muni.fi.pv256.movio2.fk410022.db.enums.Genre;
-import cz.muni.fi.pv256.movio2.fk410022.db.provider.DbContract;
 
 @Table(name = DbContract.Film.TABLE, id = DbContract.BaseEntity.ID)
 public class Film extends Model {
@@ -28,6 +28,9 @@ public class Film extends Model {
 
     @Column(name = DbContract.Film.RELEASE_DATE)
     private Date releaseDate;
+
+    @Column(name = DbContract.Film.LATE_RELEASE_DATE)
+    private Date lateReleaseDate;
 
     @Column(name = DbContract.Film.POSTER_PATH_ID)
     private String posterPathId;
@@ -45,6 +48,7 @@ public class Film extends Model {
     private long ratingVoteCount;
 
     private transient Collection<Genre> genresToPersist;
+    private transient Collection<FilmGenre> genresToRemove;
 
     public Film() {
         super();
@@ -81,6 +85,14 @@ public class Film extends Model {
 
     public void setReleaseDate(Date releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    public Date getLateReleaseDate() {
+        return lateReleaseDate;
+    }
+
+    public void setLateReleaseDate(Date lateReleaseDate) {
+        this.lateReleaseDate = lateReleaseDate;
     }
 
     public String getPosterPathId() {
@@ -124,11 +136,19 @@ public class Film extends Model {
     }
 
     public Collection<Genre> getGenresToPersist() {
-        return genresToPersist;
+        return genresToPersist == null ? Collections.emptyList() : genresToPersist;
     }
 
     public void setGenresToPersist(Collection<Genre> genresToPersist) {
         this.genresToPersist = genresToPersist;
+    }
+
+    public Collection<FilmGenre> getGenresToRemove() {
+        return genresToRemove == null ? Collections.emptyList() : genresToRemove;
+    }
+
+    public void setGenresToRemove(Collection<FilmGenre> genresToRemove) {
+        this.genresToRemove = genresToRemove;
     }
 
     public List<FilmGenre> getGenres() {
@@ -153,6 +173,8 @@ public class Film extends Model {
             return false;
         if (releaseDate != null ? !releaseDate.equals(film.releaseDate) : film.releaseDate != null)
             return false;
+        if (lateReleaseDate != null ? !lateReleaseDate.equals(film.lateReleaseDate) : film.lateReleaseDate != null)
+            return false;
         if (posterPathId != null ? !posterPathId.equals(film.posterPathId) : film.posterPathId != null)
             return false;
         return backdropPathId != null ? backdropPathId.equals(film.backdropPathId) : film.backdropPathId == null;
@@ -166,6 +188,7 @@ public class Film extends Model {
         result = 31 * result + (title != null ? title.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (releaseDate != null ? releaseDate.hashCode() : 0);
+        result = 31 * result + (lateReleaseDate != null ? lateReleaseDate.hashCode() : 0);
         result = 31 * result + (posterPathId != null ? posterPathId.hashCode() : 0);
         result = 31 * result + (backdropPathId != null ? backdropPathId.hashCode() : 0);
         temp = Double.doubleToLongBits(popularity);

@@ -2,34 +2,30 @@ package cz.muni.fi.pv256.movio2.fk410022.network;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.util.Pair;
 
-import com.activeandroid.ActiveAndroid;
-import com.activeandroid.Model;
-import com.activeandroid.query.Select;
-import com.annimon.stream.Stream;
-
-import java.util.ArrayList;
-import java.util.Calendar;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import cz.muni.fi.pv256.movio2.fk410022.BuildConfig;
 import cz.muni.fi.pv256.movio2.fk410022.DebugClass;
 import cz.muni.fi.pv256.movio2.fk410022.R;
-import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
-import cz.muni.fi.pv256.movio2.fk410022.db.model.FilmGenre;
+import cz.muni.fi.pv256.movio2.fk410022.db.FilmFacade;
+import cz.muni.fi.pv256.movio2.fk410022.network.dto.Film;
 import cz.muni.fi.pv256.movio2.fk410022.network.dto.Films;
 import cz.muni.fi.pv256.movio2.fk410022.network.exception.EmptyBodyException;
-import cz.muni.fi.pv256.movio2.fk410022.store.FilmListStore;
-import cz.muni.fi.pv256.movio2.fk410022.store.FilmListType;
 import cz.muni.fi.pv256.movio2.fk410022.util.Constants;
-import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
+import cz.muni.fi.pv256.movio2.fk410022.util.NetworkUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.NotificationUtils;
-import cz.muni.fi.pv256.movio2.fk410022.util.Utils;
-import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -37,19 +33,8 @@ public class DownloadService extends IntentService {
 
     private static final String TAG = DownloadService.class.getSimpleName();
 
-    private static final FilmListStore filmListStore = FilmListStore.INSTANCE;
-
-    private static final int ERROR_NOTIFICATION_ID = 0;
-    private static final int DOWNLOADING_NOTIFICATION_ID = 1;
-    private static final int DOWNLOADED_NOTIFICATION_ID = 2;
-
     private final MovieDbClient movieDbClient = buildClient();
     private NotificationUtils notifUtils;
-
-    private int intentCount = 0;
-    private int movieCount = 0;
-
-    private boolean networkAlreadyFailed = false;
 
     public DownloadService() {
         super(TAG);
@@ -63,126 +48,101 @@ public class DownloadService extends IntentService {
     }
 
     @Override
+    public void onDestroy() {
+        notifUtils.cancelNotification(NotificationUtils.DOWNLOADING_NOTIFICATION_ID);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        notifUtils.cancelNotification(NotificationUtils.DOWNLOADING_NOTIFICATION_ID);
+        super.onTaskRemoved(rootIntent);
+    }
+
+    public static void startFullDownload(Context context) {
+        startDownload(context, null);
+    }
+
+    public static void startDownload(Context context, FilmListType type) {
+        Intent intent = new Intent(context, DownloadService.class);
+        intent.putExtra(Constants.FILM_LIST_TYPE, type);
+        context.startService(intent);
+    }
+
+    @Override
     protected void onHandleIntent(Intent intent) {
-        if (!Utils.isNetworkAvailable(getApplicationContext())) {
-            if (!networkAlreadyFailed) {
-                makeTurnNetworkOnNotification();
-                networkAlreadyFailed = true;
-            }
+        if (!NetworkUtils.isNetworkAvailable(getApplicationContext())) {
+            makeTurnNetworkOnNotification();
             return;
         }
-
         FilmListType type = (FilmListType) intent.getSerializableExtra(Constants.FILM_LIST_TYPE);
-        List<Film> result = null;
-        retrofit2.Call<Films> requestCall = getRequestByType(type);
-        if (requestCall == null) {
-            throw new UnsupportedOperationException("Invalid FilmListType: couldn't make a request.");
-        }
+        boolean downloadAll = (type == null);
 
         try {
             makeDownloadingNotification();
-            retrofit2.Response<cz.muni.fi.pv256.movio2.fk410022.network.dto.Films> response = requestCall.execute();
-            Films films = response.body();
-            if (films == null) {
-                throw new EmptyBodyException(getString(R.string.empty_body_message));
-            }
-            makeDownloadedNotification(films.getResultsCount(), false);
-            result = films.toEntityList();
-            updateDb(films.getResults());
+
+            Collection<Film> films = downloadAll ? downloadAllTypes() : downloadAllPages(type);
+            Pair<Integer, Integer> updatedCount = FilmFacade.update(films);
+
+            makeDownloadedNotification(updatedCount, false);
+            notifyDownloadFinished(type);
         } catch (Exception x) {
             String ex = x.getMessage() == null ? x.toString() : x.getMessage();
-            notifUtils.fireNotification(ERROR_NOTIFICATION_ID, getString(R.string.error_message, type.getReadableName(), ex), true);
-        }
-
-        if (result != null) {
-            filmListStore.putAll(type, result);
-            Intent finishIntent = new Intent(Constants.FILM_LIST_DOWNLOAD_FINISHED).putExtra(Constants.FILM_LIST_TYPE, type);
-            finishIntent.putExtra(Constants.FILM_LIST_TYPE, type);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(finishIntent);
+            String message = getString(R.string.error_message,
+                    downloadAll ? getString(R.string.movies) : type.getReadableName(), ex);
+            notifUtils.fireNotification(NotificationUtils.ERROR_NOTIFICATION_ID, message, true);
         }
     }
 
-    private void updateDb(cz.muni.fi.pv256.movio2.fk410022.network.dto.Film[] films) {
-        List<Film> dbFilms = new Select().from(Film.class).execute();
+    private Collection<Film> downloadAllTypes() throws IOException, EmptyBodyException {
+        HashMap<Film, Film> result = new HashMap<>();
 
-        final HashMap<Long, Film> filmMap = Stream.of(dbFilms)
-                .collect(HashMap<Long, Film>::new, (map, film) -> map.put(film.getMovieDbId(), film));
-
-        List<Film> toUpdate = new ArrayList<>();
-
-        for (cz.muni.fi.pv256.movio2.fk410022.network.dto.Film film : films) {
-            if (film.getId() == null) {
-                continue;
-            }
-
-            Film dbFilm = filmMap.get(film.getId());
-            if (dbFilm == null) {
-                dbFilm = new Film();
-            }
-
-            if (film.updateDbFilm(dbFilm)) {
-                toUpdate.add(dbFilm);
+        for (FilmListType type : FilmListType.getRequestOrder()) {
+            for (Film film : downloadAllPages(type)) {
+                result.put(film, film);
             }
         }
 
-        ActiveAndroid.beginTransaction();
-        try {
-            Stream.of(toUpdate).forEach(Model::save);
+        return result.values();
+    }
 
-            ActiveAndroid.setTransactionSuccessful();
-        } finally {
-            ActiveAndroid.endTransaction();
+    private Collection<Film> downloadAllPages(FilmListType type) throws IOException, EmptyBodyException {
+        retrofit2.Call<Films> requestCall;
+        retrofit2.Response<cz.muni.fi.pv256.movio2.fk410022.network.dto.Films> response;
+        Set<Film> result = new HashSet<>();
+
+        for (int i = 1; i < type.getDefaultNumberOfPages() + 1; i++) {
+            requestCall = type.prepareRequestCall(movieDbClient, i);
+            response = requestCall.execute();
+
+            Films films = response.body();
+
+            if (films == null) {
+                throw new EmptyBodyException(getString(R.string.empty_body_message));
+            }
+
+            result.addAll(Arrays.asList(films.getResults()));
+
+            if (films.getTotalPages() <= i) {
+                break;
+            }
         }
 
-        ActiveAndroid.beginTransaction();
-        try {
-            Stream.of(toUpdate).forEach(
-                    film -> Stream.of(film.getGenresToPersist())
-                            .filter(value -> value != null)
-                            .map(genre -> new FilmGenre(film, genre))
-                            .forEach(Model::save));
+        type.processRequestResult(result);
 
-            ActiveAndroid.setTransactionSuccessful();
-        } finally {
-            ActiveAndroid.endTransaction();
-        }
+        return result;
+    }
+
+    private void notifyDownloadFinished(FilmListType type) {
+        Intent finishIntent = new Intent(Constants.FILM_LIST_DOWNLOAD_FINISHED).putExtra(Constants.FILM_LIST_TYPE, type);
+        finishIntent.putExtra(Constants.FILM_LIST_TYPE, type);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(finishIntent);
     }
 
     private void makeTurnNetworkOnNotification() {
         final NotificationCompat.Builder builder =
                 notifUtils.getNetworkSettingsotificationBuilder(getString(R.string.turn_network_back_on_message));
-        notifUtils.fireNotification(ERROR_NOTIFICATION_ID, builder, true);
-    }
-
-    @Override
-    public void onDestroy() {
-        if (movieCount != 0) {
-            makeDownloadedNotification(0, true);
-        }
-        notifUtils.cancelNotification(DOWNLOADING_NOTIFICATION_ID);
-        super.onDestroy();
-    }
-
-    private Call<Films> getRequestByType(FilmListType type) {
-        Call<Films> requestCall;
-        switch (type) {
-            case RECENT_POPULAR_MOVIES:
-                Calendar today = Calendar.getInstance();
-                Calendar twoMonthsBack = Calendar.getInstance();
-                twoMonthsBack.add(Calendar.MONTH, -2);
-                requestCall = movieDbClient.listRecentPopular(Constants.API_KEY,
-                        DateUtils.convertToString(twoMonthsBack.getTime()), DateUtils.convertToString(today.getTime()));
-                break;
-            case CURRENT_YEAR_POPULAR_ANIMATED_MOVIES:
-                requestCall = movieDbClient.listCurrentYearPopularAnimation(Constants.API_KEY, DateUtils.getCurrentYear());
-                break;
-            case HIGHLY_RATED_SCIFI_MOVIES:
-                requestCall = movieDbClient.listHighlyRatedScifi(Constants.API_KEY);
-                break;
-            default:
-                requestCall = null;
-        }
-        return requestCall;
+        notifUtils.fireNotification(NotificationUtils.ERROR_NOTIFICATION_ID, builder, true);
     }
 
     private MovieDbClient buildClient() {
@@ -197,24 +157,46 @@ public class DownloadService extends IntentService {
         return retrofitBuilder.build().create(MovieDbClient.class);
     }
 
-    private void makeDownloadedNotification(int countIncrement, boolean strong) {
-        movieCount += countIncrement;
-        notifUtils.fireNotification(DOWNLOADED_NOTIFICATION_ID,
-                getResources().getQuantityString(R.plurals.downloaded_message, movieCount, movieCount), strong);
+    private void makeDownloadedNotification(Pair<Integer, Integer> updatedCount, boolean strong) {
+        int newMovieCount = updatedCount.first;
+        int updatedMovieCount = updatedCount.second;
+
+        if (newMovieCount == 0 && updatedMovieCount == 0) {
+            return;
+        }
+
+        String message;
+
+        if (newMovieCount == 0) {
+            message = getResources().getString(R.string.updated_message, getUpdatedMoviesMessagePart(updatedMovieCount));
+        } else if (updatedMovieCount == 0) {
+            message = getDownloadedMessage(newMovieCount);
+        } else {
+            message = getResources().getString(R.string.and_updated_message, getDownloadedMessage(newMovieCount),
+                    getUpdatedMoviesMessagePart(updatedMovieCount));
+        }
+
+        notifUtils.fireNotification(NotificationUtils.DOWNLOADED_NOTIFICATION_ID, message, strong);
+    }
+
+    @NonNull
+    private String getDownloadedMessage(int newMovieCount) {
+        return getResources().getQuantityString(R.plurals.downloaded_message, newMovieCount, newMovieCount);
+    }
+
+    @NonNull
+    private String getUpdatedMoviesMessagePart(int updatedMovieCount) {
+        return getResources().getQuantityString(R.plurals.movies, updatedMovieCount, updatedMovieCount);
     }
 
     private void makeDownloadingNotification() {
-        String message = getString(R.string.downloading_message);
+        String message = getString(R.string.updating_message);
 
         NotificationCompat.Builder builder = notifUtils.getMainActivityNotificationBuilder(message)
                 .setAutoCancel(false)
+                .setTicker(message)
                 .setOngoing(true);
 
-        if (intentCount == 0) {
-            intentCount++;
-            builder.setTicker(message);
-        }
-
-        notifUtils.fireNotification(DOWNLOADING_NOTIFICATION_ID, builder);
+        notifUtils.fireNotification(NotificationUtils.DOWNLOADING_NOTIFICATION_ID, builder);
     }
 }

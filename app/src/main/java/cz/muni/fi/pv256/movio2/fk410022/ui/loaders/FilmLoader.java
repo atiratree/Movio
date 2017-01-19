@@ -5,9 +5,9 @@ import android.os.Bundle;
 
 import com.activeandroid.query.From;
 
+import cz.muni.fi.pv256.movio2.fk410022.db.DbContract;
+import cz.muni.fi.pv256.movio2.fk410022.db.DbSyntax;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
-import cz.muni.fi.pv256.movio2.fk410022.db.provider.DbContract;
-import cz.muni.fi.pv256.movio2.fk410022.db.provider.DbSyntax;
 
 public class FilmLoader extends EntityLoader<Film> {
 

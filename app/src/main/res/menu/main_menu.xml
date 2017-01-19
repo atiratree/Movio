@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/close_detail"
-        android:title="@string/close_detail"
+        android:title="@string/accessibility_close_detail"
         android:icon="@drawable/ic_arrow_forward_white_24dp"
         android:visible="false"
         app:showAsAction="always"/>
@@ -12,7 +12,7 @@
     <item
         android:id="@+id/refresh"
         android:icon="@drawable/ic_sync_white_24dp"
-        android:title="@string/refresh"
+        android:title="@string/accessibility_refresh"
         app:showAsAction="always"/>
 
     <item

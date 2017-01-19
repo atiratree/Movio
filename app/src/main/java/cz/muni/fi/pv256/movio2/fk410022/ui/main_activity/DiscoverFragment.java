@@ -1,13 +1,8 @@
 package cz.muni.fi.pv256.movio2.fk410022.ui.main_activity;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,114 +10,114 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.annimon.stream.Stream;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 
-import java.util.EnumMap;
-import java.util.Map;
+import java.util.List;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
-import cz.muni.fi.pv256.movio2.fk410022.store.FilmListStore;
-import cz.muni.fi.pv256.movio2.fk410022.store.FilmListType;
-import cz.muni.fi.pv256.movio2.fk410022.util.Constants;
+import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
+import cz.muni.fi.pv256.movio2.fk410022.ui.loaders.AnimatedFilmsLoader;
+import cz.muni.fi.pv256.movio2.fk410022.ui.loaders.EntitiesLoader;
+import cz.muni.fi.pv256.movio2.fk410022.ui.loaders.PopularFilmsLoader;
+import cz.muni.fi.pv256.movio2.fk410022.ui.loaders.ScifiFilmsLoader;
 import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
-import cz.muni.fi.pv256.movio2.fk410022.util.Utils;
 
 public class DiscoverFragment extends Fragment {
     private static final String TAG = DiscoverFragment.class.getSimpleName();
 
-    private Context context;
-    private Map<FilmListType, RecyclerView> recyclerMap = new EnumMap<>(FilmListType.class);
+    private static final int RECENT_POPULAR_MOVIES_LOADER = 0; // unique between fragments
+    private static final int CURRENT_YEAR_POPULAR_ANIMATED_MOVIES_LOADER = 1;
+    private static final int HIGHLY_RATED_SCIFI_MOVIES_LOADER = 2;
 
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            FilmListType type = (FilmListType) intent.getSerializableExtra(Constants.FILM_LIST_TYPE);
-            refreshRecyclerView(type);
-        }
-    };
+    private FilmListWrapper[] wrappers;
 
     public static DiscoverFragment newInstance() {
         return new DiscoverFragment();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        context = getActivity().getApplicationContext();
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_discover, container, false);
 
         initIndependentTitle(view);
-        initRecyclerViews(view);
+        wrappers = getWrappers(view);
+        Stream.of(wrappers).forEach(w -> Utils.initializeMovieRecyclerView(w.recyclerView, getContext()));
+
         return view;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(broadcastReceiver);
-        broadcastReceiver = null;
-        context = null;
-        recyclerMap = null;
+        wrappers = null;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        Stream.of(wrappers).forEach(w -> getLoaderManager().restartLoader(w.loaderId, null, w.loader));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Stream.of(wrappers).forEach(w -> getLoaderManager().destroyLoader(w.loaderId));
     }
 
     private void initIndependentTitle(View view) {
-        int year = DateUtils.getCurrentYear();
+        int year = DateUtils.getCurrentYearAsInt();
         TextView independentMoviesTitle = (TextView) view.findViewById(R.id.current_year_popular_animated_movies_title);
         independentMoviesTitle.setText(getString(R.string.current_year_popular_animated_movies, year));
         independentMoviesTitle.setContentDescription(getString(R.string.accessibility_current_year_popular_animated_movies, year));
     }
 
-    private void initRecyclerViews(View view) {
-        recyclerMap.put(FilmListType.RECENT_POPULAR_MOVIES, (RecyclerView) view.findViewById(R.id.recycler_view_popular_movies));
-        recyclerMap.put(FilmListType.CURRENT_YEAR_POPULAR_ANIMATED_MOVIES, (RecyclerView) view.findViewById(R.id.recycler_view_current_year_popular_animated_movies));
-        recyclerMap.put(FilmListType.HIGHLY_RATED_SCIFI_MOVIES, (RecyclerView) view.findViewById(R.id.recycler_view_scifi_movies));
+    private FilmListWrapper[] getWrappers(View view) {
 
-        initBroadcasts();
+        FilmListWrapper recentPopularWrapper = new FilmListWrapper(RECENT_POPULAR_MOVIES_LOADER,
+                (RecyclerView) view.findViewById(R.id.recycler_view_popular_movies));
+        recentPopularWrapper.setLoader(new PopularFilmsLoader(recentPopularWrapper, getContext()));
 
-        Stream.of(recyclerMap.keySet()).forEach(this::initializeRecyclerView);
+        FilmListWrapper animatedWrapper = new FilmListWrapper(CURRENT_YEAR_POPULAR_ANIMATED_MOVIES_LOADER,
+                (RecyclerView) view.findViewById(R.id.recycler_view_current_year_popular_animated_movies));
+        animatedWrapper.setLoader(new AnimatedFilmsLoader(animatedWrapper, getContext()));
+
+        FilmListWrapper scifiWrapper = new FilmListWrapper(HIGHLY_RATED_SCIFI_MOVIES_LOADER,
+                (RecyclerView) view.findViewById(R.id.recycler_view_scifi_movies));
+        scifiWrapper.setLoader(new ScifiFilmsLoader(scifiWrapper, getContext()));
+
+        return new FilmListWrapper[]{
+                recentPopularWrapper,
+                animatedWrapper,
+                scifiWrapper
+        };
     }
 
-    private void initBroadcasts() {
-        LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, new IntentFilter(Constants.FILM_LIST_DOWNLOAD_FINISHED));
-    }
+    private class FilmListWrapper implements EntitiesLoader.EntitiesListener<Film> {
+        RecyclerView recyclerView;
+        int loaderId;
+        EntitiesLoader loader;
 
-    private void initializeRecyclerView(FilmListType type) {
-        RecyclerView recyclerView = recyclerMap.get(type);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setHasFixedSize(true);
-
-        final PauseOnScrollListener listener = new PauseOnScrollListener(ImageLoader.getInstance(), false, false);
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                listener.onScrollStateChanged(null, newState);
+        public FilmListWrapper(int loaderId, RecyclerView recyclerView) {
+            if (recyclerView == null) {
+                throw new IllegalArgumentException("recyclerView cannot be null!");
             }
-        });
 
-        boolean initialized = FilmListStore.INSTANCE.isInitialized(type);
-        boolean hasConnection = Utils.isNetworkAvailable(context);
-
-        if (initialized) {
-            refreshRecyclerView(type);
-        } else {
-            refreshRecyclerView(type, hasConnection ? getString(R.string.downloading) : getString(R.string.no_connection));
+            this.recyclerView = recyclerView;
+            this.loaderId = loaderId;
         }
-    }
 
-    private void refreshRecyclerView(FilmListType type) {
-        RecyclerView.Adapter adapter = new MovieAdapter(FilmListStore.INSTANCE.getAll(type), (MainActivity) getActivity(), context);
-        recyclerMap.get(type).setAdapter(adapter);
-    }
+        public void setLoader(EntitiesLoader loader) {
+            this.loader = loader;
+        }
 
-    private void refreshRecyclerView(FilmListType type, String errorMessage) {
-        RecyclerView.Adapter adapter = new MovieAdapter(errorMessage, context);
-        recyclerMap.get(type).setAdapter(adapter);
+        @Override
+        public void onLoadFinished(List<Film> films) {
+            if (getContext() == null) {
+                return;
+            }
+            if (films.isEmpty()) {
+                recyclerView.setAdapter(new MovieAdapter(getString(R.string.no_movies), getContext()));
+            } else {
+                recyclerView.setAdapter(new MovieAdapter(films, (MainActivity) getActivity(), getContext()));
+            }
+        }
     }
 }

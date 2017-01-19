@@ -4,7 +4,7 @@ import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 
-import cz.muni.fi.pv256.movio2.fk410022.db.provider.DbContract;
+import cz.muni.fi.pv256.movio2.fk410022.db.DbContract;
 
 @Table(name = DbContract.FilmGenre.TABLE, id = DbContract.BaseEntity.ID)
 public class FilmGenre extends Model {
