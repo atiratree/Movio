@@ -48,57 +48,56 @@ public class Film {
             throw new IllegalArgumentException("Film to persist cannot be null");
         }
 
-        boolean changed = false;
-
         if (id != null && !id.equals(toPersist.getMovieDbId())) {
             toPersist.setMovieDbId(id);
-            changed = true;
+            toPersist.setToUpdate(true);
         }
 
         if (original_title != null ? !original_title.equals(toPersist.getTitle()) : toPersist.getTitle() != null) {
             toPersist.setTitle(original_title);
-            changed = true;
+            toPersist.setToUpdate(true);
         }
 
         if (overview != null ? !overview.equals(toPersist.getDescription()) : toPersist.getDescription() != null) {
             toPersist.setDescription(overview);
-            changed = true;
+            toPersist.setToUpdate(true);
         }
 
         Date releaseDate = DateUtils.convertToDate(release_date);
         if (releaseDate != null ? !releaseDate.equals(toPersist.getReleaseDate()) : toPersist.getReleaseDate() != null) {
             toPersist.setReleaseDate(releaseDate);
-            changed = true;
+            toPersist.setToUpdate(true);
         }
 
         if (poster_path != null ? !poster_path.equals(toPersist.getPosterPathId()) : toPersist.getPosterPathId() != null) {
             toPersist.setPosterPathId(poster_path);
-            changed = true;
+            toPersist.setToUpdate(true);
         }
 
         if (backdrop_path != null ? !backdrop_path.equals(toPersist.getBackdropPathId()) : toPersist.getBackdropPathId() != null) {
             toPersist.setBackdropPathId(backdrop_path);
-            changed = true;
+            toPersist.setToUpdate(true);
         }
 
         if (popularity != toPersist.getPopularity()) {
             toPersist.setPopularity(popularity);
-            changed = true;
+            toPersist.setToUpdate(true);
         }
 
         if (vote_average != toPersist.getRating()) {
             toPersist.setRating(vote_average);
-            changed = true;
+            toPersist.setToUpdate(true);
         }
 
         if (vote_count != toPersist.getRatingVoteCount()) {
             toPersist.setRatingVoteCount(vote_count);
-            changed = true;
+            toPersist.setToUpdate(true);
         }
 
-        if (lateReleaseDate != null ? !lateReleaseDate.equals(toPersist.getLateReleaseDate()) : toPersist.getLateReleaseDate() != null) {
+        // we do not null lateReleaseDate if we set it before already
+        if (lateReleaseDate != null && !lateReleaseDate.equals(toPersist.getLateReleaseDate())) {
             toPersist.setLateReleaseDate(lateReleaseDate);
-            return true;
+            toPersist.setToUpdate(true);
         }
 
         // check and prepare genres
@@ -117,17 +116,19 @@ public class Film {
             }
         });
 
+        boolean changedGenres = false;
+
         if (toPersistGenres.size() > 0) {
-            changed = true;
+            changedGenres = true;
             toPersist.setGenresToPersist(toPersistGenres);
         }
 
         if (toRemoveGenres.size() > 0) {
-            changed = true;
+            changedGenres = true;
             toPersist.setGenresToRemove(toRemoveGenres);
         }
 
-        return changed;
+        return toPersist.isToSave() || changedGenres;
     }
 
     @Override

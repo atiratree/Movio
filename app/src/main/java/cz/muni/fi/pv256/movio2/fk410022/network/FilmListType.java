@@ -17,7 +17,7 @@ import retrofit2.Call;
 /**
  * Use helper methods of this enum to make requests because of {@link FilmListType#CURRENT_YEAR_POPULAR_ANIMATED_MOVIES}
  */
-enum FilmListType {
+public enum FilmListType {
     RECENT_POPULAR_MOVIES(5),
     /**
      * This type is a bit hacky, because it is not viable to download release dates of each film
@@ -25,9 +25,12 @@ enum FilmListType {
     CURRENT_YEAR_POPULAR_ANIMATED_MOVIES(5),
     HIGHLY_RATED_SCIFI_MOVIES(5);
 
-    private int defaultNumberOfPages;
+    private final int defaultNumberOfPages;
 
     FilmListType(int defaultNumberOfPages) {
+        if(defaultNumberOfPages < 2){
+            throw new IllegalArgumentException("Must be at least 2 because of ContinuousFilmAdapterPresenter");
+        }
         this.defaultNumberOfPages = defaultNumberOfPages;
     }
 
@@ -66,7 +69,7 @@ enum FilmListType {
     }
 
     /**
-     * this method must process results in the same order as {@link FilmListType#getRequestOrder()}
+     * this method must be called after the request
      */
     public void processRequestResult(Collection<Film> films) {
         Utils.checkNotNull(films);
@@ -80,15 +83,5 @@ enum FilmListType {
             default:
                 break;
         }
-    }
-
-    public static FilmListType[] getRequestOrder() {
-        return new FilmListType[]{
-                RECENT_POPULAR_MOVIES,
-                HIGHLY_RATED_SCIFI_MOVIES,
-                // we need to update animated movies last, because of late release date
-                // then values are put into HashMap and late release dates are written for update
-                CURRENT_YEAR_POPULAR_ANIMATED_MOVIES
-        };
     }
 }

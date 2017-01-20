@@ -6,6 +6,8 @@ public interface Constants {
 
     String FILM_LIST_DOWNLOAD_FINISHED = APP_PACKAGE_DOT + "FILM_LIST_DOWNLOAD_FINISHED";
     String FILM_LIST_TYPE = APP_PACKAGE_DOT + "fk410022.FILM_LIST_TYPE";
+    String NEXT_PAGE = APP_PACKAGE_DOT + "fk410022.NEXT_PAGE";
+    String NOTIFY_USER = APP_PACKAGE_DOT + "fk410022.NOTIFY_USER";
 
     String API_KEY = "949182ca150d17729241f8b6f7963845";
     String BASE_URL = "https://api.themoviedb.org/";

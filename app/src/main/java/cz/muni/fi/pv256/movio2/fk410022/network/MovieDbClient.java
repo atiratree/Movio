@@ -6,6 +6,8 @@ import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 public interface MovieDbClient {
+    int MAX_PAGES = 1000; // api limitation
+
     int SCIFI_MIN_VOTE_COUNT = 10;
     int POPULAR_MIN_VOTE_COUNT = 30;
     int NEW_MOVIES_MONTHS_BACK = 3;
@@ -21,7 +23,7 @@ public interface MovieDbClient {
     String ANIMATION_ID = "16";
     String SCIENCE_FICTION_ID = "878";
 
-    @GET(DISCOVER_PART + "?sort_by=popularity.desc&vote_count.gte=" + POPULAR_MIN_VOTE_COUNT )
+    @GET(DISCOVER_PART + "?sort_by=popularity.desc&vote_count.gte=" + POPULAR_MIN_VOTE_COUNT)
     Call<Films> listRecentPopular(@Query(API_KEY) String apiKey, @Query(PAGE) int page, @Query(PRIMARY_RELEASE_DATE_GTE)
             String from, @Query(PRIMARY_RELEASE_DATE_LTE) String to);
 

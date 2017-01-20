@@ -3,6 +3,7 @@ package cz.muni.fi.pv256.movio2.fk410022.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.support.v7.graphics.Palette;
 
@@ -49,6 +50,7 @@ public class ColorUtils {
                 .generate();
     }
 
+    @ColorRes
     public static int getThemeAccentResourceId(final Context context) {
         switch (ThemeHelper.getActiveTheme(context)) {
             case MY_THEME:

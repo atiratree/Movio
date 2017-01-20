@@ -38,7 +38,7 @@ public abstract class BaseMenuActivity extends MovioActivity {
         PreferencesUtils myPrefs = new PreferencesUtils(this);
         Theme theme = myPrefs.getPrefTheme();
         theme = (theme == Theme.APP_THEME) ? Theme.MY_THEME : Theme.APP_THEME;
-        myPrefs.savePrefTheme(theme);
+        myPrefs.setPrefTheme(theme);
         recreate();
     }
 }

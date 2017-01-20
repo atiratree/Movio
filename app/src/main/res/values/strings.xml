@@ -25,7 +25,6 @@
     <string name="accessibility_recent_popular_movies">New Popular Movies. Scrollable horizontal list bellow</string>
     <string name="accessibility_current_year_popular_animated_movies" tools:ignore="PluralsCandidate">Popular Animated Movies in %1$d. Scrollable horizontal list bellow</string>
     <string name="accessibility_highly_rated_scifi_movies">Highly Rated Sci-fi Movies. Scrollable horizontal list bellow</string>
-    <string name="accessibility_favorites">Favorites. Scrollable horizontal list bellow</string>
 
     <!-- Movie list empty message -->
     <string name="no_favorites">Add movies to favorites to see this tab.</string>

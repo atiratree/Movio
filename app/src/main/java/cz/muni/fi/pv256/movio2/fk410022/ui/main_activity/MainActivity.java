@@ -14,52 +14,60 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
-import cz.muni.fi.pv256.movio2.fk410022.sync.SyncAdapter;
+import cz.muni.fi.pv256.movio2.fk410022.sync.SyncIntent;
 import cz.muni.fi.pv256.movio2.fk410022.ui.BaseMenuActivity;
-import cz.muni.fi.pv256.movio2.fk410022.ui.film_detail.FilmDetailActivity;
-import cz.muni.fi.pv256.movio2.fk410022.ui.film_detail.FilmDetailFragment;
-import cz.muni.fi.pv256.movio2.fk410022.ui.listener.OnFilmClickListener;
-import cz.muni.fi.pv256.movio2.fk410022.ui.listener.OnSwipeListener;
+import cz.muni.fi.pv256.movio2.fk410022.ui.custom.LockableScrollView;
+import cz.muni.fi.pv256.movio2.fk410022.ui.film_activity.FilmActivity;
+import cz.muni.fi.pv256.movio2.fk410022.ui.film_fragment.FilmDetailFragment;
+import cz.muni.fi.pv256.movio2.fk410022.ui.main_activity.film_list_fragments.DiscoverFragment;
+import cz.muni.fi.pv256.movio2.fk410022.ui.main_activity.film_list_fragments.FavoritesFragment;
 
-public class MainActivity extends BaseMenuActivity implements OnFilmClickListener {
+public class MainActivity extends BaseMenuActivity implements MainContract.View {
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final String SHOW_FAVORITES_KEY = "SHOW_FAVORITES_KEY";
-    private static final String VISIBLE_FILM_DB_ID_KEY = "VISIBLE_FILM_DB_ID_KEY";
-    private static final long NOT_VISIBLE = -1;
 
-    private boolean isTablet;
-    private boolean showFavorites;
-    private long visibleFilmDbId = NOT_VISIBLE;
+    private static final String FAVORITE_FRAGMENT_TAG = "FAVORITE_FRAGMENT_TAG";
+    private static final String DISCOVER_FRAGMENT_TAG = "DISCOVER_FRAGMENT_TAG";
+
+    private static final int DETAIL_ANIMATION_DURATION_MS = 100;
+
+    private Boolean showDiscover;
+    private Boolean showFavorites;
+    private Boolean showCloseDetail;
+
+    private MainContract.Presenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SyncAdapter.initializeSyncAdapter(this);
-        isTablet = getResources().getBoolean(R.bool.isTablet);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (savedInstanceState != null) {
-            showFavorites = savedInstanceState.getBoolean(SHOW_FAVORITES_KEY);
-            visibleFilmDbId = savedInstanceState.getLong(VISIBLE_FILM_DB_ID_KEY);
-        }
-
-        renderFragment();
-        refreshDetailVisibility();
-    }
-
-    private void refreshDetailVisibility() {
-        if (isDetailVisible()) {
-            Long tmp = visibleFilmDbId;
-            visibleFilmDbId = NOT_VISIBLE; // to trigger refresh
-            onItemClick(tmp);
-        }
+        presenter = new MainPresenter(this, new SyncIntent(this)).initialize();
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(SHOW_FAVORITES_KEY, showFavorites);
-        outState.putLong(VISIBLE_FILM_DB_ID_KEY, visibleFilmDbId);
+    protected void onDestroy() {
+        presenter.destroy();
+        super.onDestroy();
+    }
+
+    @Override
+    public void startDetailActivity() {
+        startActivity(new Intent(this, FilmActivity.class));
+    }
+
+    @Override
+    public void setTitle(String title) {
+        super.setTitle(title);
+    }
+
+    @Override
+    public void setFavoritesTitle() {
+        setTitle(getString(R.string.favorites));
+    }
+
+    @Override
+    public void setDiscoverTitle() {
+        setTitle(getString(R.string.movies));
     }
 
     @Override
@@ -70,10 +78,24 @@ public class MainActivity extends BaseMenuActivity implements OnFilmClickListene
     }
 
     @Override
+    public void refreshMenu(boolean showDiscover, boolean showFavorites, boolean showCloseDetail) {
+        this.showDiscover = showDiscover;
+        this.showFavorites = showFavorites;
+        this.showCloseDetail = showCloseDetail;
+        invalidateOptionsMenu();
+    }
+
+    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.show_discover).setVisible(showFavorites);
-        menu.findItem(R.id.show_favorites).setVisible(!showFavorites);
-        menu.findItem(R.id.close_detail).setVisible(isDetailVisible());
+        if (showDiscover != null) {
+            menu.findItem(R.id.show_discover).setVisible(showDiscover);
+        }
+        if (showFavorites != null) {
+            menu.findItem(R.id.show_favorites).setVisible(showFavorites);
+        }
+        if (showCloseDetail != null) {
+            menu.findItem(R.id.close_detail).setVisible(showCloseDetail);
+        }
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -81,91 +103,77 @@ public class MainActivity extends BaseMenuActivity implements OnFilmClickListene
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refresh:
-                SyncAdapter.syncImmediately(this);
+                presenter.onRefreshClicked();
                 return true;
             case R.id.show_favorites:
-                showFavorites = true;
-                invalidateOptionsMenu();
-                showDetail(NOT_VISIBLE);
-                renderFragment();
+                presenter.onShowFavoritesClicked();
                 return true;
             case R.id.show_discover:
-                showFavorites = false;
-                invalidateOptionsMenu();
-                showDetail(NOT_VISIBLE);
-                renderFragment();
+                presenter.onShowDiscoverClicked();
                 return true;
             case R.id.close_detail:
-                showDetail(NOT_VISIBLE);
+                presenter.onCloseDetailClicked();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void renderFragment() {
-        Fragment fragment = showFavorites ? FavoritesFragment.newInstance() : DiscoverFragment.newInstance();
-        refreshTitle();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.movies_fragment_container, fragment).commit();
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        if (getSupportFragmentManager().findFragmentByTag(FAVORITE_FRAGMENT_TAG) != null) {
+            setFragmentsScrollable(false);
+        }
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
-    public void onItemClick(Long filmDbId) {
-        if (!isTablet) {
-            Intent intent = new Intent(this, FilmDetailActivity.class);
-            intent.putExtra(FilmDetailActivity.FILM_ID_PARAM, filmDbId);
-            startActivity(intent);
-        } else {
-            FilmDetailFragment detailFragment = FilmDetailFragment.newInstance(filmDbId, new OnSwipeListener() {
-                @Override
-                public void onSwipeRight() {
-                    showDetail(NOT_VISIBLE);
-                }
-            });
-            if (findViewById(R.id.detail_fragment_container) == null) {
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.detail_fragment_container, detailFragment).commit();
-            } else {
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.detail_fragment_container, detailFragment);
-                transaction.commit();
+    public void replaceFilmLists(boolean showDiscover) {
+        if (showDiscover) {
+            setFragmentsScrollable(true);
+            Fragment favorite = getSupportFragmentManager().findFragmentByTag(FAVORITE_FRAGMENT_TAG);
+            Fragment discover = getSupportFragmentManager().findFragmentByTag(DISCOVER_FRAGMENT_TAG);
 
-                showDetail(filmDbId);
+            final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            if (favorite != null) {
+                transaction.remove(favorite);
             }
+
+            if (discover == null) {
+                transaction.add(R.id.movies_fragment_container, new DiscoverFragment(), DISCOVER_FRAGMENT_TAG);
+            }
+
+            transaction.commit();
+        } else if (getSupportFragmentManager().findFragmentByTag(FAVORITE_FRAGMENT_TAG) == null) {
+            setFragmentsScrollable(false);
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.movies_fragment_container, new FavoritesFragment(), FAVORITE_FRAGMENT_TAG).commit();
         }
     }
 
-    public void setVisibleFilmDbId(long visibleFilmDbId) {
-        if (visibleFilmDbId == NOT_VISIBLE) {
-            refreshTitle();
-        }
-        this.visibleFilmDbId = visibleFilmDbId;
-    }
-
-    public void refreshTitle() {
-        setTitle(getString(showFavorites ? R.string.favorites : R.string.movies));
-    }
-
-    private boolean isDetailVisible() {
-        return visibleFilmDbId != NOT_VISIBLE;
-    }
-
-    private void showDetail(long filmDbId) {
-        // still invisible
-        if (!isDetailVisible() && filmDbId == NOT_VISIBLE) {
+    // small hack to have fragments of different heights in the view, if one cannot be scrollable (i.e. FAVORITE_FRAGMENT_TAG)
+    private void setFragmentsScrollable(boolean scrollable) {
+        final LockableScrollView scrollView = (LockableScrollView) findViewById(R.id.movies_scroll_view);
+        if (scrollView == null) {
             return;
         }
 
-        // still visible, but with different id
-        if (isDetailVisible() && filmDbId != NOT_VISIBLE) {
-            setVisibleFilmDbId(filmDbId);
-            return;
+        if (!scrollable) {
+            scrollView.scrollTo(0, 0);
         }
-        setVisibleFilmDbId(filmDbId);
+        scrollView.setScrollable(scrollable);
+    }
 
-        ScrollView scrollView = (ScrollView) findViewById(R.id.movies_scroll_view);
-        FrameLayout container = (FrameLayout) findViewById(R.id.detail_fragment_container);
+    @Override
+    public void toggleFilmDetail(boolean showDetail) {
+        if (showDetail) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.detail_fragment_container, new FilmDetailFragment()).commit();
+        }
+
+        final ScrollView scrollView = (ScrollView) findViewById(R.id.movies_scroll_view);
+        final FrameLayout container = (FrameLayout) findViewById(R.id.detail_fragment_container);
 
         if (container == null || scrollView == null) {
             return;
@@ -176,26 +184,44 @@ public class MainActivity extends BaseMenuActivity implements OnFilmClickListene
             protected void applyTransformation(float interpolatedTime, Transformation t) {
                 LinearLayout.LayoutParams containerParam = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT, isDetailVisible() ? 2 - interpolatedTime : 1 + interpolatedTime);
+                        LinearLayout.LayoutParams.MATCH_PARENT, showDetail ? 2 - interpolatedTime : 1 + interpolatedTime);
 
                 LinearLayout.LayoutParams scrollViewParam = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT, isDetailVisible() ? interpolatedTime : 1 - interpolatedTime);
+                        LinearLayout.LayoutParams.MATCH_PARENT, showDetail ? interpolatedTime : 1 - interpolatedTime);
 
                 container.setLayoutParams(containerParam);
                 scrollView.setLayoutParams(scrollViewParam);
             }
         };
 
-        a.setDuration(100);
-        container.startAnimation(a);
-
-        if (!isDetailVisible()) {
-            getSupportFragmentManager().beginTransaction()
-                    .remove(getSupportFragmentManager().findFragmentById(R.id.detail_fragment_container))
-                    .commit();
+        if (!showDetail) {
+            setDestroyOnAnimationEndListener(a);
         }
 
-        invalidateOptionsMenu();
+        a.setDuration(DETAIL_ANIMATION_DURATION_MS);
+        container.startAnimation(a);
+    }
+
+    private void setDestroyOnAnimationEndListener(Animation a) {
+        a.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                final Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.detail_fragment_container);
+                if (fragment != null) {
+                    getSupportFragmentManager().beginTransaction()
+                            .remove(fragment)
+                            .commit();
+                }
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
     }
 }

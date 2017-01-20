@@ -37,7 +37,7 @@
         </activity>
 
         <activity
-            android:name=".ui.film_detail.FilmDetailActivity"
+            android:name=".ui.film_activity.FilmActivity"
             android:parentActivityName=".ui.main_activity.MainActivity"/>
 
         <service
