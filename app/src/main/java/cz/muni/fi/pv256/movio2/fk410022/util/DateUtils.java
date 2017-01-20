@@ -50,7 +50,7 @@ public class DateUtils {
 
     public static Date getNewMoviesMonthsBack() {
         Calendar newMoviesMonthsBack = Calendar.getInstance();
-        newMoviesMonthsBack.add(Calendar.MONTH, - MovieDbClient.NEW_MOVIES_MONTHS_BACK);
+        newMoviesMonthsBack.add(Calendar.MONTH, -MovieDbClient.NEW_MOVIES_MONTHS_BACK);
         nullTime(newMoviesMonthsBack);
 
         return newMoviesMonthsBack.getTime();

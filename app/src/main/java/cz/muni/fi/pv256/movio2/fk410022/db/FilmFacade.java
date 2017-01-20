@@ -1,10 +1,12 @@
 package cz.muni.fi.pv256.movio2.fk410022.db;
 
 import android.support.v4.util.Pair;
+import android.util.Log;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.Model;
 import com.activeandroid.query.Select;
+import com.activeandroid.sqlbrite.BriteDatabase;
 import com.annimon.stream.Stream;
 
 import java.util.ArrayList;
@@ -12,11 +14,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import cz.muni.fi.pv256.movio2.fk410022.db.manager.FilmGenreManager;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.FilmGenre;
 
 public class FilmFacade {
+
+    private static final String TAG = FilmFacade.class.getSimpleName();
 
     /**
      * @param films films to be checked and potentially persisted
@@ -48,31 +51,25 @@ public class FilmFacade {
             }
         }
 
-        ActiveAndroid.beginTransaction();
+        BriteDatabase.Transaction transaction = ActiveAndroid.beginTransaction();
         try {
-            Stream.of(toUpdate).forEach(Model::save);
+            Stream.of(toUpdate).filter(Film::isToSave).forEach(Model::save);
 
-            ActiveAndroid.setTransactionSuccessful();
-        } finally {
-            ActiveAndroid.endTransaction();
-        }
-
-        ActiveAndroid.beginTransaction();
-        try {
-            FilmGenreManager filmGenreManager = new FilmGenreManager();
             Stream.of(toUpdate).flatMap(film -> Stream.of(film.getGenresToPersist())
                     .filter(value -> value != null)
                     .map(genre -> new FilmGenre(film, genre)))
-                    .forEach(filmGenreManager::save);
+                    .forEach(Model::save);
 
             Stream.of(toUpdate).flatMap(film -> Stream.of(film.getGenresToRemove()))
                     .filter(value -> value != null)
-                    .forEach(filmGenreManager::delete);
+                    .forEach(Model::delete);
 
-            ActiveAndroid.setTransactionSuccessful();
+            ActiveAndroid.setTransactionSuccessful(transaction);
         } finally {
-            ActiveAndroid.endTransaction();
+            ActiveAndroid.endTransaction(transaction);
         }
+
+        Log.i(TAG, String.format("Film Db count: %d", dbFilms.size() + newCount));
 
         return new Pair<>(newCount, toUpdate.size() - newCount);
     }

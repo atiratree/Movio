@@ -8,12 +8,15 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import cz.muni.fi.pv256.movio2.fk410022.BuildConfig;
@@ -26,6 +29,7 @@ import cz.muni.fi.pv256.movio2.fk410022.network.exception.EmptyBodyException;
 import cz.muni.fi.pv256.movio2.fk410022.util.Constants;
 import cz.muni.fi.pv256.movio2.fk410022.util.NetworkUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.NotificationUtils;
+import cz.muni.fi.pv256.movio2.fk410022.util.PreferencesUtils;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -35,6 +39,7 @@ public class DownloadService extends IntentService {
 
     private final MovieDbClient movieDbClient = buildClient();
     private NotificationUtils notifUtils;
+    private PreferencesUtils prefUtils;
 
     public DownloadService() {
         super(TAG);
@@ -45,6 +50,7 @@ public class DownloadService extends IntentService {
         super.onCreate();
         notifUtils = new NotificationUtils(getApplicationContext(),
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE));
+        prefUtils = new PreferencesUtils(getApplicationContext());
     }
 
     @Override
@@ -66,26 +72,45 @@ public class DownloadService extends IntentService {
     public static void startDownload(Context context, FilmListType type) {
         Intent intent = new Intent(context, DownloadService.class);
         intent.putExtra(Constants.FILM_LIST_TYPE, type);
+        intent.putExtra(Constants.NOTIFY_USER, true);
         context.startService(intent);
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        boolean notify = intent.getBooleanExtra(Constants.NOTIFY_USER, false);
         if (!NetworkUtils.isNetworkAvailable(getApplicationContext())) {
-            makeTurnNetworkOnNotification();
+            if (notify) {
+                makeTurnNetworkOnNotification();
+            }
             return;
         }
+
         FilmListType type = (FilmListType) intent.getSerializableExtra(Constants.FILM_LIST_TYPE);
+        boolean nextPage = intent.getBooleanExtra(Constants.NEXT_PAGE, false);
         boolean downloadAll = (type == null);
 
         try {
-            makeDownloadingNotification();
+            if (notify) {
+                makeDownloadingNotification();
+            }
 
-            Collection<Film> films = downloadAll ? downloadAllTypes() : downloadAllPages(type);
-            Pair<Integer, Integer> updatedCount = FilmFacade.update(films);
+            Pair<Integer, Integer> updatedCount = null;
+            if (downloadAll) {
+                updatedCount = FilmFacade.update(downloadAllTypes());
+            } else if (nextPage) {
+                if (!prefUtils.isPageCapReached(type)) {
+                    updatedCount = DownloadNewPage(type, prefUtils.getLastDownloadedPage(type) + 1);
+                }
+            } else {
+                updatedCount = FilmFacade.update(downloadAllPages(type));
+            }
 
-            makeDownloadedNotification(updatedCount, false);
             notifyDownloadFinished(type);
+
+            if (notify && updatedCount != null) {
+                makeDownloadedNotification(updatedCount, false);
+            }
         } catch (Exception x) {
             String ex = x.getMessage() == null ? x.toString() : x.getMessage();
             String message = getString(R.string.error_message,
@@ -94,10 +119,27 @@ public class DownloadService extends IntentService {
         }
     }
 
+    @NonNull
+    private Pair<Integer, Integer> DownloadNewPage(FilmListType type, int newPage) throws IOException, EmptyBodyException {
+        Pair<Collection<Film>, Integer> result;
+        Pair<Integer, Integer> updatedCount;
+
+        do {
+            result = downloadPage(type, newPage++);
+            updatedCount = FilmFacade.update(result.first);
+            if (result.second < newPage) {
+                break;
+            }
+        }
+        while (updatedCount.first == 0 && NetworkUtils.isNetworkAvailable(getApplicationContext()));
+
+        return updatedCount;
+    }
+
     private Collection<Film> downloadAllTypes() throws IOException, EmptyBodyException {
         HashMap<Film, Film> result = new HashMap<>();
 
-        for (FilmListType type : FilmListType.getRequestOrder()) {
+        for (FilmListType type : FilmListType.values()) {
             for (Film film : downloadAllPages(type)) {
                 result.put(film, film);
             }
@@ -107,30 +149,45 @@ public class DownloadService extends IntentService {
     }
 
     private Collection<Film> downloadAllPages(FilmListType type) throws IOException, EmptyBodyException {
-        retrofit2.Call<Films> requestCall;
-        retrofit2.Response<cz.muni.fi.pv256.movio2.fk410022.network.dto.Films> response;
         Set<Film> result = new HashSet<>();
+        prefUtils.setPageCapReached(type, false);
 
-        for (int i = 1; i < type.getDefaultNumberOfPages() + 1; i++) {
-            requestCall = type.prepareRequestCall(movieDbClient, i);
-            response = requestCall.execute();
+        for (int i = 1; i < type.getDefaultNumberOfPages() + 1 && i <= MovieDbClient.MAX_PAGES; i++) {
+            Pair<Collection<Film>, Integer> films = downloadPage(type, i);
+            result.addAll(films.first);
 
-            Films films = response.body();
-
-            if (films == null) {
-                throw new EmptyBodyException(getString(R.string.empty_body_message));
-            }
-
-            result.addAll(Arrays.asList(films.getResults()));
-
-            if (films.getTotalPages() <= i) {
+            if (films.second <= i) { // total Pages check
                 break;
             }
         }
 
+        return result;
+    }
+
+    private Pair<Collection<Film>, Integer> downloadPage(FilmListType type, int page) throws IOException, EmptyBodyException {
+        if (MovieDbClient.MAX_PAGES < page) {
+            return new Pair<>(Collections.emptyList(), MovieDbClient.MAX_PAGES);
+        }
+
+        retrofit2.Call<Films> requestCall = type.prepareRequestCall(movieDbClient, page);
+
+        Films films = requestCall.execute().body();
+
+        if (films == null) {
+            throw new EmptyBodyException(getString(R.string.empty_body_message));
+        }
+
+        List<Film> result = Arrays.asList(films.getResults());
         type.processRequestResult(result);
 
-        return result;
+        prefUtils.setLastDownloadedPage(type, page);
+        Log.i(TAG, String.format("Downloaded %s page %d", type.name(), page));
+
+        if (films.getTotalPages() == page) {
+            prefUtils.setPageCapReached(type, true);
+        }
+
+        return new Pair<>(result, films.getTotalPages());
     }
 
     private void notifyDownloadFinished(FilmListType type) {

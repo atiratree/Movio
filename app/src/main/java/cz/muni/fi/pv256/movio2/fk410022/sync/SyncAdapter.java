@@ -16,7 +16,7 @@ import cz.muni.fi.pv256.movio2.fk410022.network.DownloadService;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
-    private static final int SYNC_INTERVAL = 60 * 60 * 24 ; //day
+    private static final int SYNC_INTERVAL = 60 * 60 * 24; //day
     private static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
 
     public SyncAdapter(Context context, boolean autoInitialize) {

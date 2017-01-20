@@ -12,7 +12,7 @@ public class TestApp extends Application {
         super.onCreate();
 
         if (BuildConfig.DEBUG) {
-            DebugClass.initialize(getApplicationContext());
+            DebugClass.initialize(this);
         }
     }
 }

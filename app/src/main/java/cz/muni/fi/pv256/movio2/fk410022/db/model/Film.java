@@ -49,6 +49,7 @@ public class Film extends Model {
 
     private transient Collection<Genre> genresToPersist;
     private transient Collection<FilmGenre> genresToRemove;
+    private transient boolean toUpdate;
 
     public Film() {
         super();
@@ -153,6 +154,14 @@ public class Film extends Model {
 
     public List<FilmGenre> getGenres() {
         return getId() == null ? Collections.emptyList() : getMany(FilmGenre.class, DbContract.FilmGenre.FILM);
+    }
+
+    public boolean isToSave() {
+        return toUpdate;
+    }
+
+    public void setToUpdate(boolean toUpdate) {
+        this.toUpdate = toUpdate;
     }
 
     @Override

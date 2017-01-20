@@ -8,7 +8,7 @@
               android:paddingBottom="@dimen/activity_vertical_margin"
               tools:context="cz.muni.fi.pv256.movio2.fk410022.ui.main_activity.MainActivity">
 
-    <ScrollView
+    <cz.muni.fi.pv256.movio2.fk410022.ui.custom.LockableScrollView
         android:id="@+id/movies_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-    </ScrollView>
+    </cz.muni.fi.pv256.movio2.fk410022.ui.custom.LockableScrollView>
 
     <FrameLayout
         android:id="@+id/detail_fragment_container"
