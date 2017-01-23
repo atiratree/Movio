@@ -1,4 +1,4 @@
-package cz.muni.fi.pv256.movio2.fk410022;
+package cz.muni.fi.pv256.movio2.fk410022.db;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -22,7 +22,6 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
-import cz.muni.fi.pv256.movio2.fk410022.db.DbContract;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -32,14 +31,14 @@ public class FilmDbTest {
 
     @BeforeClass
     public static void setUp() {
-        Configuration dbConfiguration = new Configuration.Builder(context).setDatabaseName(TestUtils.TEST_DB_NAME).create();
+        Configuration dbConfiguration = new Configuration.Builder(context).setDatabaseName(DbUtils.TEST_DB_NAME).create();
         ActiveAndroid.initialize(dbConfiguration);
     }
 
     @AfterClass
     public static void afterClass() {
         ActiveAndroid.dispose();
-        context.deleteDatabase(TestUtils.TEST_DB_NAME);
+        context.deleteDatabase(DbUtils.TEST_DB_NAME);
     }
 
     @After
@@ -49,7 +48,7 @@ public class FilmDbTest {
 
     @Test
     public void testInsert() {
-        Film result = TestUtils.getNewFilm();
+        Film result = DbUtils.getNewFilm();
         Assert.assertTrue(result.save() > 0);
 
         Assert.assertTrue(result.equals(retrieveFirstFilm()));
@@ -60,7 +59,7 @@ public class FilmDbTest {
         List<Film> retrieved = retrieveAllFilms();
         Assert.assertEquals(0, retrieved.size());
 
-        insertToDb(TestUtils.getNewFilm());
+        insertToDb(DbUtils.getNewFilm());
         retrieved = retrieveAllFilms();
         Assert.assertEquals(1, retrieved.size());
 
@@ -68,7 +67,7 @@ public class FilmDbTest {
         Assert.assertNotNull(first.getId());
         Assert.assertTrue(first.getId() > 0);
 
-        insertToDb(TestUtils.getNewFilm());
+        insertToDb(DbUtils.getNewFilm());
         retrieved = retrieveAllFilms();
         Assert.assertEquals(2, retrieved.size());
     }
@@ -76,9 +75,9 @@ public class FilmDbTest {
     @Test
     public void testRemove() {
 
-        insertToDb(TestUtils.getNewFilm());
-        insertToDb(TestUtils.getNewFilm());
-        insertToDb(TestUtils.getNewFilm());
+        insertToDb(DbUtils.getNewFilm());
+        insertToDb(DbUtils.getNewFilm());
+        insertToDb(DbUtils.getNewFilm());
         Film.delete(Film.class, retrieveFirstFilm().getId());
 
         Assert.assertEquals(2, retrieveAllFilms().size());
@@ -86,8 +85,8 @@ public class FilmDbTest {
 
     @Test
     public void testUpdate() {
-        insertToDb(TestUtils.getNewFilm());
-        insertToDb(TestUtils.getNewFilm());
+        insertToDb(DbUtils.getNewFilm());
+        insertToDb(DbUtils.getNewFilm());
 
         Film film = retrieveFirstFilm();
         film.setTitle("Arrival");

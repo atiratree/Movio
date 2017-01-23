@@ -17,7 +17,7 @@ public interface MainContract {
 
         void setDiscoverTitle();
 
-        void refreshMenu(boolean showDiscover, boolean showFavorites, boolean showCloseDetail);
+        void refreshMenu(boolean showDiscoverButton, boolean showFavoritesButton, boolean showCloseDetailButton);
     }
 
     interface Presenter extends BasePresenter {

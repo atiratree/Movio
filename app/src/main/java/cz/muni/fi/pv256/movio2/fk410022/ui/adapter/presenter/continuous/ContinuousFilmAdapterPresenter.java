@@ -1,14 +1,11 @@
 package cz.muni.fi.pv256.movio2.fk410022.ui.adapter.presenter.continuous;
 
-import android.content.Context;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.network.DownloadNextPageIntent;
-import cz.muni.fi.pv256.movio2.fk410022.network.FilmListType;
 import cz.muni.fi.pv256.movio2.fk410022.rx.RxStore;
 import cz.muni.fi.pv256.movio2.fk410022.rx.message.SelectedFilm;
 import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.FilmAdapterContract;
@@ -25,8 +22,8 @@ public abstract class ContinuousFilmAdapterPresenter extends SubscriptionPresent
     private FilmAdapterContract.View view;
     private List<Subscription> subscriptions = new ArrayList<>();
 
-    public ContinuousFilmAdapterPresenter(Context context) {
-        nextPageIntent = new DownloadNextPageIntent(context, getType());
+    public ContinuousFilmAdapterPresenter(DownloadNextPageIntent downloadNextPageIntent) {
+        nextPageIntent = downloadNextPageIntent;
     }
 
     @Override
@@ -68,6 +65,4 @@ public abstract class ContinuousFilmAdapterPresenter extends SubscriptionPresent
     }
 
     protected abstract Observable<List<Film>> createFilmListObservable();
-
-    protected abstract FilmListType getType();
 }

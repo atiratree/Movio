@@ -50,4 +50,9 @@ public class FilmActivity extends MovioActivity implements FilmContract.View {
     public void setTitle(String title) {
         super.setTitle(title);
     }
+
+    @Override
+    public void finish() {
+        super.finish();
+    }
 }

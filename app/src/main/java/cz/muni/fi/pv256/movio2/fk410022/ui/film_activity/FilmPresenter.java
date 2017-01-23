@@ -25,7 +25,14 @@ public class FilmPresenter extends SubscriptionPresenter implements FilmContract
     public FilmPresenter initialize() {
         subscriptions.add(RxStore.SELECTED_FILM
                 .distinctUntilChanged()
-                .subscribe(this::subscribeToFilmTitle));
+                .subscribe(selected -> {
+                    if (selected.isSelected()) {
+                        subscribeToFilmTitle(selected);
+                    } else {
+                        view.finish();
+                    }
+                }));
+
         return this;
     }
 
@@ -57,7 +64,9 @@ public class FilmPresenter extends SubscriptionPresenter implements FilmContract
 
         if (selectedFilm.isSelected()) {
             activeFilmSubscription = RxDbObservables.createFilmObservable(selectedFilm.id)
-                    .subscribe(this::refreshTitle);
+                    .subscribe(film -> {
+                        refreshTitle(film);
+                    });
         } else {
             refreshTitle(null);
         }

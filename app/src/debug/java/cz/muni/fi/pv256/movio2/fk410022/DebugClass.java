@@ -14,7 +14,7 @@ import retrofit2.Retrofit;
 
 public class DebugClass {
 
-    private static final boolean DEBUG_STETHO = false;
+    private static final boolean DEBUG_STETHO = true;
     private static final boolean DEBUG_HTTP_CLIENT = false;
 
     private static final boolean LEAK_CANARY = false;

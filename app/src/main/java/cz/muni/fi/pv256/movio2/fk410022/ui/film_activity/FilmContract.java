@@ -7,6 +7,8 @@ public interface FilmContract {
     interface View {
 
         void setTitle(String title);
+
+        void finish();
     }
 
     interface Presenter extends BasePresenter {
