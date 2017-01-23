@@ -1,10 +1,10 @@
-package cz.muni.fi.pv256.movio2.fk410022;
+package cz.muni.fi.pv256.movio2.fk410022.db;
 
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Favorite;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 
-public class TestUtils {
+public class DbUtils {
     public static final String TEST_DB_NAME = "test.db";
 
     public static Film getNewFilm() {

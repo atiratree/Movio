@@ -18,11 +18,13 @@ import java.util.Collection;
 import java.util.List;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
+import cz.muni.fi.pv256.movio2.fk410022.network.DownloadNextPageIntent;
+import cz.muni.fi.pv256.movio2.fk410022.network.FilmListType;
 import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.RVUtils;
-import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.presenter.continuous.AnimatedMoviesAdapterPresenter;
+import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.presenter.continuous.AnimatedFilmsAdapterPresenter;
 import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.presenter.continuous.ContinuousFilmAdapterPresenter;
-import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.presenter.continuous.PopularMoviesAdapterPresenter;
-import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.presenter.continuous.ScifiMoviesAdapterPresenter;
+import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.presenter.continuous.PopularFilmsAdapterPresenter;
+import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.presenter.continuous.ScifiFilmsAdapterPresenter;
 import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.view.FilmAdapterView;
 import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 
@@ -59,9 +61,12 @@ public class DiscoverFragment extends Fragment {
 
     private Collection<FilmAdapterView> bindViewsToPresenters(View view) {
         List<Pair<Integer, ContinuousFilmAdapterPresenter>> viewAndData = new ArrayList<>(3);
-        viewAndData.add(new Pair<>(R.id.recycler_view_popular_movies, new PopularMoviesAdapterPresenter(getContext())));
-        viewAndData.add(new Pair<>(R.id.recycler_view_current_year_popular_animated_movies, new AnimatedMoviesAdapterPresenter(getContext())));
-        viewAndData.add(new Pair<>(R.id.recycler_view_scifi_movies, new ScifiMoviesAdapterPresenter(getContext())));
+        viewAndData.add(new Pair<>(R.id.recycler_view_popular_movies,
+                new PopularFilmsAdapterPresenter(new DownloadNextPageIntent(getContext(), FilmListType.RECENT_POPULAR_MOVIES))));
+        viewAndData.add(new Pair<>(R.id.recycler_view_current_year_popular_animated_movies,
+                new AnimatedFilmsAdapterPresenter(new DownloadNextPageIntent(getContext(), FilmListType.CURRENT_YEAR_POPULAR_ANIMATED_MOVIES))));
+        viewAndData.add(new Pair<>(R.id.recycler_view_scifi_movies,
+                new ScifiFilmsAdapterPresenter(new DownloadNextPageIntent(getContext(), FilmListType.HIGHLY_RATED_SCIFI_MOVIES))));
 
         String noMoviesMessage = getResources().getString(R.string.no_movies);
 

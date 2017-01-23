@@ -1,4 +1,4 @@
-package cz.muni.fi.pv256.movio2.fk410022;
+package cz.muni.fi.pv256.movio2.fk410022.db;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -24,7 +24,7 @@ import java.util.List;
 
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Favorite;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
-import cz.muni.fi.pv256.movio2.fk410022.db.DbContract;
+import cz.muni.fi.pv256.movio2.fk410022.db.model.FilmGenre;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -32,29 +32,30 @@ public class FavoriteDbTest {
 
     private static Context context = InstrumentationRegistry.getTargetContext();
 
-    Film savedFilm;
+    private Film savedFilm;
 
     @BeforeClass
     public static void beforeClass() {
-        Configuration dbConfiguration = new Configuration.Builder(context).setDatabaseName(TestUtils.TEST_DB_NAME).create();
+        Configuration dbConfiguration = new Configuration.Builder(context).setDatabaseName(DbUtils.TEST_DB_NAME).create();
         ActiveAndroid.initialize(dbConfiguration);
     }
 
     @AfterClass
     public static void afterClass() {
         ActiveAndroid.dispose();
-        context.deleteDatabase(TestUtils.TEST_DB_NAME);
+        context.deleteDatabase(DbUtils.TEST_DB_NAME);
     }
 
     @Before
     public void setUp() {
-        savedFilm = TestUtils.getNewFilm();
+        savedFilm = DbUtils.getNewFilm();
         savedFilm.save();
     }
 
     @After
     public void tearDown() {
         new Delete().from(Favorite.class).execute();
+        new Delete().from(FilmGenre.class).execute();
         new Delete().from(Film.class).execute();
     }
 
@@ -121,7 +122,7 @@ public class FavoriteDbTest {
     }
 
     public Favorite getNewFavorite() {
-        Favorite favorite = TestUtils.getNewFavorite();
+        Favorite favorite = DbUtils.getNewFavorite();
         favorite.setFilm(savedFilm);
 
         return favorite;

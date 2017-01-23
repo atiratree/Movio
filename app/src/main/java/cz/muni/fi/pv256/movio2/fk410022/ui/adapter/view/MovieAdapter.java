@@ -35,6 +35,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     private List<Film> mDataset = Collections.emptyList();
     private String emptyMessage = "";
     private Context context;
+    private GradientStar gradientStar;
 
     private FilmAdapterContract.Presenter presenter;
 
@@ -46,6 +47,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
 
     public void initialize() {
         presenter.initialize();
+
+        gradientStar = new GradientStar(ContextCompat.getColor(context, R.color.star_start_gradient),
+                ContextCompat.getColor(context, R.color.star_end_gradient),
+                ContextCompat.getColor(context, R.color.star_line_start_gradient),
+                ContextCompat.getColor(context, R.color.star_line_end_gradient));
     }
 
     public void destroy() {
@@ -144,10 +150,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         holder.poster.setContentDescription(context.getString(R.string.accessibility_poster_rated, film.getTitle(), rating));
         holder.title.setText(film.getTitle());
         holder.rating.setText(rating);
-        holder.star.setImageDrawable(new GradientStar(ContextCompat.getColor(context, R.color.star_start_gradient),
-                ContextCompat.getColor(context, R.color.star_end_gradient),
-                ContextCompat.getColor(context, R.color.star_line_start_gradient),
-                ContextCompat.getColor(context, R.color.star_line_end_gradient)));
+        holder.star.setImageDrawable(gradientStar);
     }
 
     @Override

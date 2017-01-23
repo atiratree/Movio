@@ -30,9 +30,9 @@ public class MainActivity extends BaseMenuActivity implements MainContract.View 
 
     private static final int DETAIL_ANIMATION_DURATION_MS = 100;
 
-    private Boolean showDiscover;
-    private Boolean showFavorites;
-    private Boolean showCloseDetail;
+    private Boolean showDiscoverButton;
+    private Boolean showFavoritesButton;
+    private Boolean showCloseDetailButton;
 
     private MainContract.Presenter presenter;
 
@@ -78,23 +78,23 @@ public class MainActivity extends BaseMenuActivity implements MainContract.View 
     }
 
     @Override
-    public void refreshMenu(boolean showDiscover, boolean showFavorites, boolean showCloseDetail) {
-        this.showDiscover = showDiscover;
-        this.showFavorites = showFavorites;
-        this.showCloseDetail = showCloseDetail;
+    public void refreshMenu(boolean showDiscoverButton, boolean showFavoritesButton, boolean showCloseDetailButton) {
+        this.showDiscoverButton = showDiscoverButton;
+        this.showFavoritesButton = showFavoritesButton;
+        this.showCloseDetailButton = showCloseDetailButton;
         invalidateOptionsMenu();
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (showDiscover != null) {
-            menu.findItem(R.id.show_discover).setVisible(showDiscover);
+        if (showDiscoverButton != null) {
+            menu.findItem(R.id.show_discover).setVisible(showDiscoverButton);
         }
-        if (showFavorites != null) {
-            menu.findItem(R.id.show_favorites).setVisible(showFavorites);
+        if (showFavoritesButton != null) {
+            menu.findItem(R.id.show_favorites).setVisible(showFavoritesButton);
         }
-        if (showCloseDetail != null) {
-            menu.findItem(R.id.close_detail).setVisible(showCloseDetail);
+        if (showCloseDetailButton != null) {
+            menu.findItem(R.id.close_detail).setVisible(showCloseDetailButton);
         }
         return super.onPrepareOptionsMenu(menu);
     }

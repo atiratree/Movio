@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 
 import cz.muni.fi.pv256.movio2.fk410022.R;
 import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.RVUtils;
-import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.presenter.fixed.FavoriteMoviesAdapterPresenter;
+import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.presenter.fixed.FavoriteFilmsAdapterPresenter;
 import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.view.FilmAdapterView;
 
 public class FavoritesFragment extends Fragment {
@@ -38,7 +38,7 @@ public class FavoritesFragment extends Fragment {
 
     private FilmAdapterView bindViewToPresenter(View view) {
         RecyclerView rv = (RecyclerView) view.findViewById(R.id.recycler_view_favorites);
-        FavoriteMoviesAdapterPresenter presenter = new FavoriteMoviesAdapterPresenter();
+        FavoriteFilmsAdapterPresenter presenter = new FavoriteFilmsAdapterPresenter();
 
         RVUtils.initializeMovieRecyclerView(rv, getContext());
         return RVUtils.bind(rv, presenter, getResources().getString(R.string.no_favorites));
