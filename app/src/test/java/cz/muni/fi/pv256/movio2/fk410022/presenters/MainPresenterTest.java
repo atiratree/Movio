@@ -1,4 +1,4 @@
-package cz.muni.fi.pv256.movio2.fk410022;
+package cz.muni.fi.pv256.movio2.fk410022.presenters;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -13,6 +13,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Locale;
 
+import cz.muni.fi.pv256.movio2.fk410022.App;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.rx.RxDbObservables;
 import cz.muni.fi.pv256.movio2.fk410022.rx.RxStore;

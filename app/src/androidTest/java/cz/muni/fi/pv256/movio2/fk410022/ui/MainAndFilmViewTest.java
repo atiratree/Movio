@@ -1,8 +1,10 @@
 package cz.muni.fi.pv256.movio2.fk410022.ui;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.Espresso;
+import android.support.test.espresso.contrib.RecyclerViewActions;
+import android.support.test.espresso.intent.Intents;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.rule.UiThreadTestRule;
@@ -19,11 +21,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
-import java.util.Locale;
-
+import cz.muni.fi.pv256.movio2.fk410022.App;
 import cz.muni.fi.pv256.movio2.fk410022.R;
 import cz.muni.fi.pv256.movio2.fk410022.db.DbUtils;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Favorite;
@@ -31,48 +31,31 @@ import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.FilmGenre;
 import cz.muni.fi.pv256.movio2.fk410022.rx.RxStore;
 import cz.muni.fi.pv256.movio2.fk410022.rx.message.SelectedFilm;
+import cz.muni.fi.pv256.movio2.fk410022.ui.film_activity.FilmActivity;
 import cz.muni.fi.pv256.movio2.fk410022.ui.main_activity.MainActivity;
 import cz.muni.fi.pv256.movio2.fk410022.ui.utils.CustomMatcher;
-import cz.muni.fi.pv256.movio2.fk410022.ui.utils.MockUtils;
 import cz.muni.fi.pv256.movio2.fk410022.ui.utils.UiUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.PreferencesUtils;
-import cz.muni.fi.pv256.movio2.fk410022.utils.ParamUtils;
-import de.schauderhaft.rules.parameterized.Generator;
-import de.schauderhaft.rules.parameterized.ListGenerator;
-import rx.subjects.BehaviorSubject;
-import rx.subjects.SerializedSubject;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.intent.Intents.intended;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static cz.muni.fi.pv256.movio2.fk410022.ui.utils.EspressoUtils.clickOnMenuItem;
 import static org.hamcrest.core.AllOf.allOf;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MainAndFilmViewTest {
-    @Rule
-    public TestName name = new TestName();
 
-    private Boolean isTablet;
-
-    @Rule
-    @SuppressWarnings("unchecked")
-    public Generator<Boolean[]> parameters = new ListGenerator(ParamUtils.getTruthTable(1));
-
-    private void initializeParams() {
-        final Boolean[] params = parameters.value();
-        isTablet = params[0];
-        UiUtils.setIsTablet(isTablet);
-        System.out.println(String.format(Locale.ENGLISH, "%s: run %d isTablet=%b",
-                name.getMethodName(), parameters.runIndex(), isTablet));
-    }
+    private static Boolean isTablet;
 
     @Rule
     public final ActivityTestRule<MainActivity> rule = new ActivityTestRule<>(MainActivity.class);
@@ -82,12 +65,12 @@ public class MainAndFilmViewTest {
 
     private static Context context = InstrumentationRegistry.getTargetContext();
 
-    private MainActivity mainActivity;
-
     private Film film;
 
     @BeforeClass
     public static void setUp() {
+        isTablet = App.isTablet();
+
         Configuration dbConfiguration = new Configuration.Builder(context).setDatabaseName(DbUtils.TEST_DB_NAME).create();
         ActiveAndroid.initialize(dbConfiguration);
     }
@@ -99,26 +82,17 @@ public class MainAndFilmViewTest {
     }
 
     @Before
-    public void init() throws Exception {
-        initializeParams();
-        rule.getActivity().finish();
-
+    public void init() throws Throwable {
         // set defaults - because we repeat test twice for phone/tablet
-        MockUtils.setFinalStatic(RxStore.class, "SHOW_DISCOVER", new SerializedSubject<>(BehaviorSubject.create(true)));
-        MockUtils.setFinalStatic(RxStore.class, "SELECTED_FILM", new SerializedSubject<>(BehaviorSubject.create(SelectedFilm.EMPTY)));
-
+        uiThreadTestRule.runOnUiThread(() -> RxStore.SHOW_DISCOVER.onNext(true));
+        uiThreadTestRule.runOnUiThread(() -> RxStore.SELECTED_FILM.onNext(SelectedFilm.EMPTY));
         // default theme
         new PreferencesUtils(context).setPrefTheme(Theme.APP_THEME);
-
-        // start activity again as phone/tablet
-        rule.launchActivity(new Intent(context, MainActivity.class));
 
         // init film
         film = UiUtils.getAnimatedFilm();
         film.save();
         Stream.of(film.getGenresToPersist()).forEach(genre -> new FilmGenre(film, genre).save());
-
-        mainActivity = rule.getActivity();
     }
 
     @After
@@ -131,10 +105,17 @@ public class MainAndFilmViewTest {
     @Test
     public void testFilmDetailAndTheme() throws Throwable {
         // click on film
-        onView(allOf(withId(R.id.view_item),
-                isDescendantOfA(withId(R.id.recycler_view_current_year_popular_animated_movies))))
-                .perform(click());
-        // check view container is present (phone's in new activity)
+        if (!isTablet) {
+            Intents.init();
+        }
+        onView(withId(R.id.recycler_view_current_year_popular_animated_movies))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+
+        if (!isTablet) {
+            // phone starts new activity
+            intended(hasComponent(FilmActivity.class.getName()));
+        }
+        // check view container is present
         onView(withId(R.id.detail_fragment_container)).check(matches(isDisplayed()));
 
         // check content is set
@@ -164,7 +145,7 @@ public class MainAndFilmViewTest {
                 .check(matches(CustomMatcher.withBackgroundTintColor(R.color.accent)));
 
         if (isTablet) {
-            onView(withId(R.id.changeTheme)).perform(click());
+            clickOnMenuItem(R.id.change_theme, R.string.change_theme);
 
             onView(allOf(withId(R.id.add_to_favorites),
                     isDescendantOfA(withId(R.id.detail_fragment_container))))
@@ -177,18 +158,13 @@ public class MainAndFilmViewTest {
         onView(withId(R.id.close_detail)).check(doesNotExist());
 
         // click on film
-        onView(allOf(withId(R.id.view_item),
-                isDescendantOfA(withId(R.id.recycler_view_current_year_popular_animated_movies))))
-                .perform(click());
+        onView(withId(R.id.recycler_view_current_year_popular_animated_movies))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
 
         // check color and drawable of add to favorite
         onView(allOf(withId(R.id.add_to_favorites),
                 isDescendantOfA(withId(R.id.detail_fragment_container))))
                 .check(matches(CustomMatcher.withBackgroundTintColor(R.color.accent)));
-
-        onView(allOf(withId(R.id.add_to_favorites),
-                isDescendantOfA(withId(R.id.detail_fragment_container))))
-                .check(matches(CustomMatcher.withDrawableResource(R.drawable.ic_add_white_24dp)));
 
         // click on add to favorites
         onView(allOf(withId(R.id.add_to_favorites),
@@ -200,10 +176,6 @@ public class MainAndFilmViewTest {
                 isDescendantOfA(withId(R.id.detail_fragment_container))))
                 .check(matches(CustomMatcher.withBackgroundTintColor(R.color.fab_warning)));
 
-        onView(allOf(withId(R.id.add_to_favorites),
-                isDescendantOfA(withId(R.id.detail_fragment_container))))
-                .check(matches(CustomMatcher.withDrawableResource(R.drawable.ic_clear_white_24dp)));
-
         // click on remove from favorites
         onView(allOf(withId(R.id.add_to_favorites),
                 isDescendantOfA(withId(R.id.detail_fragment_container))))
@@ -214,38 +186,29 @@ public class MainAndFilmViewTest {
                 isDescendantOfA(withId(R.id.detail_fragment_container))))
                 .check(matches(CustomMatcher.withBackgroundTintColor(R.color.accent)));
 
-        onView(allOf(withId(R.id.add_to_favorites),
-                isDescendantOfA(withId(R.id.detail_fragment_container))))
-                .check(matches(CustomMatcher.withDrawableResource(R.drawable.ic_add_white_24dp)));
-
         // close detail
         if (isTablet) {
             onView(withId(R.id.close_detail)).check(matches(isDisplayed()));
             onView(withId(R.id.close_detail)).perform(click());
             onView(withId(R.id.close_detail)).check(doesNotExist());
         } else {
-            onView(allOf(withContentDescription("Navigate up"),
-                    isDescendantOfA(withId(R.id.action_bar))))
-                    .perform(click());
+            Espresso.pressBack();
         }
     }
 
     @Test
     public void testFavoriteList() throws Throwable {
-        onView(allOf(withId(R.id.view_item),
-                isDescendantOfA(withId(R.id.recycler_view_current_year_popular_animated_movies))))
-                .perform(click());
+        onView(withId(R.id.recycler_view_current_year_popular_animated_movies))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
 
         onView(allOf(withId(R.id.add_to_favorites),
                 isDescendantOfA(withId(R.id.detail_fragment_container))))
                 .perform(click());
 
         if (!isTablet) {
-            onView(allOf(withContentDescription("Navigate up"),
-                    isDescendantOfA(withId(R.id.action_bar))))
-                    .perform(click());
+            Espresso.pressBack();
         }
-        onView(withId(R.id.show_favorites)).perform(click());
+        clickOnMenuItem(R.id.show_favorites, R.string.show_favorites);
         // end initialization
 
         // close favorited detail
@@ -260,7 +223,7 @@ public class MainAndFilmViewTest {
         // navigated to favorites
         onView(withId(R.id.recycler_view_favorites)).check(matches(isDisplayed()));
 
-        // there is a our film in the list
+        // there is our film in the list
         onView(allOf(withId(R.id.view_item_title),
                 isDescendantOfA(withId(R.id.recycler_view_favorites)),
                 withText(film.getTitle())))
@@ -281,7 +244,7 @@ public class MainAndFilmViewTest {
         // end initialization; this is tested in testAddToFavorites()
 
         // go to favorites and click on a movie
-        onView(withId(R.id.show_favorites)).perform(click());
+        clickOnMenuItem(R.id.show_favorites, R.string.show_favorites);
         onView(allOf(withId(R.id.view_item),
                 isDescendantOfA(withId(R.id.recycler_view_favorites))))
                 .perform(click());
@@ -309,9 +272,7 @@ public class MainAndFilmViewTest {
 
         if (!isTablet) {
             // go back to favorites
-            onView(allOf(withContentDescription("Navigate up"),
-                    isDescendantOfA(withId(R.id.action_bar))))
-                    .perform(click());
+            Espresso.pressBack();
         }
 
         // check there are no movies in favorites

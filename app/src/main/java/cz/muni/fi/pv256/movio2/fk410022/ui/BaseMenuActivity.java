@@ -26,7 +26,7 @@ public abstract class BaseMenuActivity extends MovioActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.changeTheme:
+            case R.id.change_theme:
                 changeTheme();
                 return true;
             default:

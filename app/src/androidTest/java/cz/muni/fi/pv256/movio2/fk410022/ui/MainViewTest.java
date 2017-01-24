@@ -1,7 +1,6 @@
 package cz.muni.fi.pv256.movio2.fk410022.ui;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
@@ -19,11 +18,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
-import java.util.Locale;
-
+import cz.muni.fi.pv256.movio2.fk410022.App;
 import cz.muni.fi.pv256.movio2.fk410022.R;
 import cz.muni.fi.pv256.movio2.fk410022.db.DbUtils;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Favorite;
@@ -33,44 +30,24 @@ import cz.muni.fi.pv256.movio2.fk410022.rx.RxStore;
 import cz.muni.fi.pv256.movio2.fk410022.rx.message.SelectedFilm;
 import cz.muni.fi.pv256.movio2.fk410022.ui.main_activity.MainActivity;
 import cz.muni.fi.pv256.movio2.fk410022.ui.utils.CustomMatcher;
-import cz.muni.fi.pv256.movio2.fk410022.ui.utils.MockUtils;
 import cz.muni.fi.pv256.movio2.fk410022.ui.utils.UiUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.PreferencesUtils;
-import cz.muni.fi.pv256.movio2.fk410022.utils.ParamUtils;
-import de.schauderhaft.rules.parameterized.Generator;
-import de.schauderhaft.rules.parameterized.ListGenerator;
-import rx.subjects.BehaviorSubject;
-import rx.subjects.SerializedSubject;
 
 import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static cz.muni.fi.pv256.movio2.fk410022.ui.utils.EspressoUtils.clickOnMenuItem;
+import static cz.muni.fi.pv256.movio2.fk410022.ui.utils.EspressoUtils.menuItemDisplayed;
+import static cz.muni.fi.pv256.movio2.fk410022.ui.utils.EspressoUtils.menuItemNotDisplayed;
 import static org.hamcrest.core.AllOf.allOf;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MainViewTest {
-    @Rule
-    public TestName name = new TestName();
-
-    private Boolean isTablet;
-
-    @Rule
-    @SuppressWarnings("unchecked")
-    public Generator<Boolean[]> parameters = new ListGenerator(ParamUtils.getTruthTable(1));
-
-    private void initializeParams() {
-        final Boolean[] params = parameters.value();
-        isTablet = params[0];
-        UiUtils.setIsTablet(isTablet);
-        System.out.println(String.format(Locale.ENGLISH, "%s: run %d isTablet=%b",
-                name.getMethodName(), parameters.runIndex(), isTablet));
-    }
 
     @Rule
     public final ActivityTestRule<MainActivity> rule = new ActivityTestRule<>(MainActivity.class);
@@ -79,8 +56,6 @@ public class MainViewTest {
     public UiThreadTestRule uiThreadTestRule = new UiThreadTestRule();
 
     private static Context context = InstrumentationRegistry.getTargetContext();
-
-    private MainActivity mainActivity;
 
     private Film film;
 
@@ -97,26 +72,16 @@ public class MainViewTest {
     }
 
     @Before
-    public void init() throws Exception {
-        initializeParams();
-        rule.getActivity().finish();
-
+    public void init() throws Throwable {
         // set defaults - because we repeat test twice for phone/tablet
-        MockUtils.setFinalStatic(RxStore.class, "SHOW_DISCOVER", new SerializedSubject<>(BehaviorSubject.create(true)));
-        MockUtils.setFinalStatic(RxStore.class, "SELECTED_FILM", new SerializedSubject<>(BehaviorSubject.create(SelectedFilm.EMPTY)));
-
+        uiThreadTestRule.runOnUiThread(() -> RxStore.SHOW_DISCOVER.onNext(true));
+        uiThreadTestRule.runOnUiThread(() -> RxStore.SELECTED_FILM.onNext(SelectedFilm.EMPTY));
         // default theme
         new PreferencesUtils(context).setPrefTheme(Theme.APP_THEME);
-
-        // start activity again as phone/tablet
-        rule.launchActivity(new Intent(context, MainActivity.class));
-
         // init film
         film = UiUtils.getAnimatedFilm();
         film.save();
         Stream.of(film.getGenresToPersist()).forEach(genre -> new FilmGenre(film, genre).save());
-
-        mainActivity = rule.getActivity();
     }
 
     @After
@@ -129,18 +94,16 @@ public class MainViewTest {
     @Test
     public void testToggleFavorites() throws Exception {
         // show favorites
-        onView(withId(R.id.show_favorites)).perform(click());
-        onView(withId(R.id.show_favorites)).check(doesNotExist());
-        onView(withId(R.id.show_discover)).check(matches(isDisplayed()));
-        onView(withId(R.id.show_discover)).check(matches(withText(R.string.show_discover)));
+        clickOnMenuItem(R.id.show_favorites, R.string.show_favorites);
+        menuItemNotDisplayed(R.id.show_favorites, R.string.show_favorites);
+        menuItemDisplayed(R.id.show_discover, R.string.show_discover);
         onView(withId(R.id.recycler_view_favorites)).check(matches(isDisplayed()));
         onView(CustomMatcher.childAtPosition(withId(R.id.action_bar), 0)).check(matches(withText(R.string.favorites)));
 
         // show discover
-        onView(withId(R.id.show_discover)).perform(click());
-        onView(withId(R.id.show_discover)).check(doesNotExist());
-        onView(withId(R.id.show_favorites)).check(matches(isDisplayed()));
-        onView(withId(R.id.show_favorites)).check(matches(withText(R.string.show_favorites)));
+        clickOnMenuItem(R.id.show_discover, R.string.show_discover);
+        menuItemNotDisplayed(R.id.show_discover, R.string.show_discover);
+        menuItemDisplayed(R.id.show_favorites, R.string.show_favorites);
         onView(withId(R.id.recycler_view_favorites)).check(doesNotExist());
         onView(CustomMatcher.childAtPosition(withId(R.id.action_bar), 0)).check(matches(withText(R.string.movies)));
     }
@@ -148,20 +111,20 @@ public class MainViewTest {
     @Test
     public void testToggleTheme() throws Exception {
         onView(withId(android.R.id.content)).check(matches(CustomMatcher.withBackgroundColor(R.color.background)));
-        onView(withId(R.id.changeTheme)).perform(click());
+        clickOnMenuItem(R.id.change_theme, R.string.change_theme);
         onView(withId(android.R.id.content)).check(matches(CustomMatcher.withBackgroundColor(R.color.my_theme_background)));
-        onView(withId(R.id.changeTheme)).perform(click());
+        clickOnMenuItem(R.id.change_theme, R.string.change_theme);
         onView(withId(android.R.id.content)).check(matches(CustomMatcher.withBackgroundColor(R.color.background)));
     }
 
     @Test
     public void testInitialMenuState() throws Exception {
         onView(CustomMatcher.childAtPosition(withId(R.id.action_bar), 0)).check(matches(withText(R.string.movies)));
-        onView(withId(R.id.close_detail)).check(doesNotExist());
+        menuItemNotDisplayed(R.id.close_detail, R.string.accessibility_close_detail);
         onView(withId(R.id.refresh)).check(matches(isDisplayed()));
-        onView(withId(R.id.show_favorites)).check(matches(isDisplayed()));
-        onView(withId(R.id.show_discover)).check(doesNotExist());
-        onView(withId(R.id.changeTheme)).check(matches(isDisplayed()));
+        menuItemDisplayed(R.id.show_favorites, R.string.show_favorites);
+        menuItemNotDisplayed(R.id.show_discover, R.string.show_discover);
+        menuItemDisplayed(R.id.change_theme, R.string.change_theme);
     }
 
     @Test

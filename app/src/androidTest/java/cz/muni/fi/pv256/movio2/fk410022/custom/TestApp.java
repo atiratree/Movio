@@ -8,6 +8,8 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import cz.muni.fi.pv256.movio2.fk410022.BuildConfig;
 import cz.muni.fi.pv256.movio2.fk410022.DebugClass;
+import cz.muni.fi.pv256.movio2.fk410022.R;
+import cz.muni.fi.pv256.movio2.fk410022.ui.utils.UiUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.image.SizeHelper;
 
 public class TestApp extends Application {
@@ -16,7 +18,7 @@ public class TestApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        super.onCreate();
+        UiUtils.setIsTablet(getResources().getBoolean(R.bool.isTablet));
 
         if (BuildConfig.DEBUG) {
             DebugClass.initialize(this);

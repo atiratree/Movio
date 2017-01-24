@@ -21,8 +21,6 @@ public class FilmActivity extends MovioActivity implements FilmContract.View {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.detail_fragment_container, new FilmDetailFragment()).commit();
         }
-
-        presenter = new FilmPresenter(this).initialize();
     }
 
     @Override
@@ -35,15 +33,21 @@ public class FilmActivity extends MovioActivity implements FilmContract.View {
     }
 
     @Override
-    public void onBackPressed() {
-        presenter.onBackPressed();
-        super.onBackPressed();
+    protected void onPostResume() {
+        presenter = new FilmPresenter(this).initialize();
+        super.onPostResume();
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onPause() {
         presenter.destroy();
-        super.onDestroy();
+        super.onPause();
+    }
+
+    @Override
+    public void onBackPressed() {
+        presenter.onBackPressed();
+        super.onBackPressed();
     }
 
     @Override

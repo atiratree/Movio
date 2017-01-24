@@ -3,6 +3,7 @@ package cz.muni.fi.pv256.movio2.fk410022.network.dto;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -63,7 +64,7 @@ public class Film {
             toPersist.setToUpdate(true);
         }
 
-        Date releaseDate = DateUtils.convertToDate(release_date);
+        Date releaseDate = release_date == null ? null : DateUtils.convertToDate(release_date);
         if (releaseDate != null ? !releaseDate.equals(toPersist.getReleaseDate()) : toPersist.getReleaseDate() != null) {
             toPersist.setReleaseDate(releaseDate);
             toPersist.setToUpdate(true);
@@ -101,7 +102,8 @@ public class Film {
         }
 
         // check and prepare genres
-        List<Genre> allRestGenres = Stream.of(genre_ids).map(Genre::fromId).filter(v -> v != null).collect(Collectors.toList());
+        List<Genre> allRestGenres = genre_ids == null ? Collections.emptyList() :
+                Stream.of(genre_ids).map(Genre::fromId).filter(v -> v != null).collect(Collectors.toList());
         EnumSet<Genre> allGenres = allRestGenres.isEmpty() ? EnumSet.noneOf(Genre.class) : EnumSet.copyOf(allRestGenres);
         EnumSet<Genre> toPersistGenres = allGenres.clone();
         Set<FilmGenre> toRemoveGenres = new HashSet<>();
