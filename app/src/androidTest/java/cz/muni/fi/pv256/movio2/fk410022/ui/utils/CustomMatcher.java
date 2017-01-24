@@ -87,7 +87,7 @@ public class CustomMatcher {
             @Override
             public boolean matchesSafely(View item) {
                 final Drawable.ConstantState state = item.getResources().getDrawable(drawableId).getConstantState();
-                return item instanceof FloatingActionButton && ((FloatingActionButton) item).getDrawable().getConstantState() == state;
+                return item instanceof FloatingActionButton && ((FloatingActionButton) item).getDrawable().getConstantState().equals(state);
             }
 
             @Override

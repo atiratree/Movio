@@ -28,7 +28,7 @@ public enum FilmListType {
     private final int defaultNumberOfPages;
 
     FilmListType(int defaultNumberOfPages) {
-        if(defaultNumberOfPages < 2){
+        if (defaultNumberOfPages < 2) {
             throw new IllegalArgumentException("Must be at least 2 because of ContinuousFilmAdapterPresenter");
         }
         this.defaultNumberOfPages = defaultNumberOfPages;

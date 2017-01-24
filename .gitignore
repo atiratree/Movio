@@ -42,6 +42,7 @@ captures/
 
 # Keystore files
 *.jks
+keystore.properties
 
 # Eclipse project files
 .classpath

@@ -1,6 +1,5 @@
-package cz.muni.fi.pv256.movio2.fk410022.adapters;
+package cz.muni.fi.pv256.movio2.fk410022.presenters;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,8 +11,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 
 import cz.muni.fi.pv256.movio2.fk410022.App;
@@ -21,10 +18,10 @@ import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.rx.RxDbObservables;
 import cz.muni.fi.pv256.movio2.fk410022.rx.RxStore;
 import cz.muni.fi.pv256.movio2.fk410022.rx.message.SelectedFilm;
-import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.FilmAdapterContract;
-import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.presenter.fixed.FavoriteFilmsAdapterPresenter;
-import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.presenter.fixed.FixedFilmAdapterPresenter;
+import cz.muni.fi.pv256.movio2.fk410022.ui.film_activity.FilmContract;
+import cz.muni.fi.pv256.movio2.fk410022.ui.film_activity.FilmPresenter;
 import cz.muni.fi.pv256.movio2.fk410022.utils.DataUtils;
+import cz.muni.fi.pv256.movio2.fk410022.utils.LastMethodCall;
 import cz.muni.fi.pv256.movio2.fk410022.utils.MockUtils;
 import cz.muni.fi.pv256.movio2.fk410022.utils.ParamUtils;
 import de.schauderhaft.rules.parameterized.Generator;
@@ -36,13 +33,13 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(value = {App.class, RxStore.class, RxDbObservables.class, Film.class})
-public class FavoritesFilmsAdapterPresenterTest {
+public class FilmPresenterTest {
 
     @Rule
     public TestName name = new TestName();
 
     private Boolean isTablet;
-    private Boolean emptyDataSet;
+    private Boolean selectedFilm;
 
     @Rule
     @SuppressWarnings("unchecked")
@@ -51,13 +48,13 @@ public class FavoritesFilmsAdapterPresenterTest {
     private void initializeParams() {
         final Boolean[] params = parameters.value();
         isTablet = params[0];
-        emptyDataSet = params[1];
-        System.out.println(String.format(Locale.ENGLISH, "%s: run %d  isTablet=%b emptyDataSet=%b",
-                name.getMethodName(), parameters.runIndex(), isTablet, emptyDataSet));
+        selectedFilm = params[1];
+        System.out.println(String.format(Locale.ENGLISH, "%s: run %d isTablet=%b selectedFilm=%b",
+                name.getMethodName(), parameters.runIndex(), isTablet, selectedFilm));
     }
 
     @Mock
-    private FilmAdapterContract.View view;
+    private FilmContract.View view;
 
     @Mock
     private Film filmOne;
@@ -65,9 +62,7 @@ public class FavoritesFilmsAdapterPresenterTest {
     @Mock
     private Film filmTwo;
 
-    private FixedFilmAdapterPresenter presenter;
-
-    private List<Film> dataSet;
+    private FilmPresenter presenter;
 
     @Before
     public void setUp() throws Exception {
@@ -77,23 +72,28 @@ public class FavoritesFilmsAdapterPresenterTest {
         DataUtils.setFilmTwoValues(filmTwo);
 
         PowerMockito.mockStatic(RxStore.class);
-        MockUtils.setFinalStatic(RxStore.class, "SELECTED_FILM", new SerializedSubject<>(BehaviorSubject.create(SelectedFilm.EMPTY)));
+        MockUtils.setFinalStatic(RxStore.class, "SELECTED_FILM", new SerializedSubject<>(
+                BehaviorSubject.create(selectedFilm ? new SelectedFilm(filmOne.getId()) : SelectedFilm.EMPTY)));
 
         PowerMockito.mockStatic(App.class);
         PowerMockito.when(App.isTablet()).thenReturn(isTablet);
 
         PowerMockito.mockStatic(RxDbObservables.class);
-
-        dataSet = emptyDataSet ? Collections.emptyList() : DataUtils.createFakeList(100, filmOne, filmTwo);
-        PowerMockito.when(RxDbObservables.createFavoriteFilmsObservable()).thenReturn(rx.Observable.just(dataSet));
+        PowerMockito.when(RxDbObservables.createFilmObservable(filmOne.getId())).thenReturn(rx.Observable.just(filmOne));
+        PowerMockito.when(RxDbObservables.createFilmObservable(filmTwo.getId())).thenReturn(rx.Observable.just(filmTwo));
+        PowerMockito.when(RxDbObservables.createFilmObservable(null)).thenReturn(rx.Observable.just(null));
 
         initializeTestAndReset();
     }
 
     private void initializeTestAndReset() {
-        presenter = new FavoriteFilmsAdapterPresenter().setView(view).initialize();
+        presenter = new FilmPresenter(view).initialize();
 
-        verify(view).refreshDataSet(dataSet);
+        if (selectedFilm) {
+            verify(view).setTitle(filmOne.getTitle());
+        } else {
+            verify(view, new LastMethodCall()).finish();
+        }
 
         Mockito.reset(view);
         Mockito.reset(filmOne);
@@ -101,9 +101,34 @@ public class FavoritesFilmsAdapterPresenterTest {
     }
 
     @Test
-    public void testOnFilmClicked() {
-        presenter.onFilmClicked(filmOne.getId());
+    public void testOnBackPressed() {
+        if (selectedFilm) {
+            presenter.onBackPressed();
+            verify(view).finish();
+        }
+    }
 
-        RxStore.SELECTED_FILM.subscribe(film -> Assert.assertEquals(film.id, filmOne.getId()));
+    @Test
+    public void testOnHomePressed() {
+        if (selectedFilm) {
+            presenter.onHomePressed();
+            verify(view).finish();
+        }
+    }
+
+    @Test
+    public void testOnNewFilmChange() throws Exception {
+        if (selectedFilm) {
+            RxStore.SELECTED_FILM.onNext(new SelectedFilm(filmTwo.getId()));
+            verify(view).setTitle(filmTwo.getTitle());
+        }
+    }
+
+    @Test
+    public void testOnEmptyFilmChange() throws Exception {
+        if (selectedFilm) {
+            RxStore.SELECTED_FILM.onNext(SelectedFilm.EMPTY);// invert
+            verify(view).finish();
+        }
     }
 }

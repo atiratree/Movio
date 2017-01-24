@@ -44,14 +44,19 @@ android {
             java.srcDir sharedTestDir
         }
     }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
     ext.androidSupportVersion = '7:25.1.0'
     ext.androidSupportDesignVersion = '25.1.0'
     ext.powerMockVersion = '1.6.6'
-
+    ext.espressoVersion = '2.2.2'
     ext.stethoVersion = '1.4.1'
+
     compile fileTree(include: ['*.jar'], dir: 'libs')
 
     compile group: 'com.squareup.retrofit2', name: 'converter-gson', version: '2.1.0'
@@ -92,7 +97,19 @@ dependencies {
     androidTestCompile('com.android.support.test:rules:0.5') {
         exclude group: 'com.android.support'
     }
-    androidTestCompile 'com.android.support.test.espresso:espresso-contrib:2.2.2', {
+    androidTestCompile "com.android.support.test.espresso:espresso-contrib:$espressoVersion", {
+        exclude group: 'com.android.support', module: 'support-annotations'
+        exclude group: 'com.android.support', module: 'support-v4'
+        exclude group: 'com.android.support', module: 'design'
+        exclude group: 'com.android.support', module: 'recyclerview-v7'
+    }
+    androidTestCompile "com.android.support.test.espresso:espresso-core:$espressoVersion", {
+        exclude group: 'com.android.support', module: 'support-annotations'
+        exclude group: 'com.android.support', module: 'support-v4'
+        exclude group: 'com.android.support', module: 'design'
+        exclude group: 'com.android.support', module: 'recyclerview-v7'
+    }
+    androidTestCompile "com.android.support.test.espresso:espresso-intents:$espressoVersion", {
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude group: 'com.android.support', module: 'support-v4'
         exclude group: 'com.android.support', module: 'design'

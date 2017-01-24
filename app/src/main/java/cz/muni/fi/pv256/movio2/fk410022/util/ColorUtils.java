@@ -2,6 +2,7 @@ package cz.muni.fi.pv256.movio2.fk410022.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
@@ -24,9 +25,12 @@ public class ColorUtils {
 
     @ColorInt
     public static int getDominantColor(Palette palette) {
+        if (palette == null) {
+            return Color.BLACK;
+        }
         List<Palette.Swatch> swatches = palette.getSwatches();
         if (swatches.isEmpty()) {
-            return 0xff000000; // black
+            return Color.BLACK;
         }
         return Collections.max(swatches, (sw1, sw2) -> sw1.getPopulation() - sw2.getPopulation()).getRgb();
     }

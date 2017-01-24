@@ -40,14 +40,18 @@ public class MainActivity extends BaseMenuActivity implements MainContract.View 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        presenter = new MainPresenter(this, new SyncIntent(this)).initialize();
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onPostResume() {
+        presenter = new MainPresenter(this, new SyncIntent(this)).initialize();
+        super.onPostResume();
+    }
+
+    @Override
+    protected void onPause() {
         presenter.destroy();
-        super.onDestroy();
+        super.onPause();
     }
 
     @Override

@@ -13,4 +13,14 @@ public class MockUtils {
         modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
         field.set(null, newValue);
     }
+
+    public static void setPrivate(Class<?> clazz, String fieldName, Object instance, Object newValue) throws Exception {
+        Field field = clazz.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        // remove final modifier from field
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        field.set(instance, newValue);
+        modifiersField.setAccessible(false);
+    }
 }

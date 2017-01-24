@@ -1,4 +1,4 @@
-package cz.muni.fi.pv256.movio2.fk410022.adapters;
+package cz.muni.fi.pv256.movio2.fk410022.presenters.adapters;
 
 import org.junit.Assert;
 import org.junit.Before;
