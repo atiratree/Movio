@@ -2,8 +2,6 @@ package cz.muni.fi.pv256.movio2.fk410022.db.enums;
 
 import android.util.SparseArray;
 
-import com.annimon.stream.Stream;
-
 public enum Genre {
     ACTION(28),
     ADVENTURE(12),
@@ -28,7 +26,9 @@ public enum Genre {
     private static final SparseArray<Genre> sparseArray = new SparseArray<>(values().length);
 
     static {
-        Stream.of(values()).forEach(genre -> sparseArray.put(genre.getId(), genre));
+        for (Genre genre : values()) {
+            sparseArray.put(genre.getId(), genre);
+        }
     }
 
     private int id;

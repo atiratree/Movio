@@ -11,6 +11,7 @@ import cz.muni.fi.pv256.movio2.fk410022.DebugClass;
 import cz.muni.fi.pv256.movio2.fk410022.R;
 import cz.muni.fi.pv256.movio2.fk410022.ui.utils.UiUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.image.SizeHelper;
+import timber.log.Timber;
 
 public class TestApp extends Application {
 
@@ -19,6 +20,8 @@ public class TestApp extends Application {
         super.onCreate();
 
         UiUtils.setIsTablet(getResources().getBoolean(R.bool.isTablet));
+
+        Timber.plant(new Timber.DebugTree());
 
         if (BuildConfig.DEBUG) {
             DebugClass.initialize(this);

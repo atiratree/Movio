@@ -9,7 +9,7 @@ import cz.muni.fi.pv256.movio2.fk410022.ui.film_fragment.FilmDetailFragment;
 
 public class FilmActivity extends MovioActivity implements FilmContract.View {
 
-    FilmContract.Presenter presenter;
+    private FilmContract.Presenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

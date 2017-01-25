@@ -252,7 +252,7 @@ public class DownloadService extends IntentService {
         NotificationCompat.Builder builder = notifUtils.getMainActivityNotificationBuilder(message)
                 .setAutoCancel(false)
                 .setTicker(message)
-                .setOngoing(true);
+                .setOngoing(false);
 
         notifUtils.fireNotification(NotificationUtils.DOWNLOADING_NOTIFICATION_ID, builder);
     }

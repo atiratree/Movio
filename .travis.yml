@@ -1,0 +1,8 @@
+language: android
+script: "./gradlew build"
+android:
+  components:
+    - platforms-tools
+    - tools
+    - build-tools-25.0.2
+    - android-25

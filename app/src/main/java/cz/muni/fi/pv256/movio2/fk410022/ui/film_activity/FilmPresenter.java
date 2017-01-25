@@ -64,9 +64,7 @@ public class FilmPresenter extends SubscriptionPresenter implements FilmContract
 
         if (selectedFilm.isSelected()) {
             activeFilmSubscription = RxDbObservables.createFilmObservable(selectedFilm.id)
-                    .subscribe(film -> {
-                        refreshTitle(film);
-                    });
+                    .subscribe(this::refreshTitle);
         } else {
             refreshTitle(null);
         }

@@ -15,7 +15,6 @@ public class LastMethodCall implements VerificationMode {
 
         final List<Invocation> invocations = data.getAllInvocations();
         final ListIterator<Invocation> listIterator = invocations.listIterator(invocations.size());
-        ;
 
         while (listIterator.hasPrevious()) {
             final Invocation previous = listIterator.previous();
