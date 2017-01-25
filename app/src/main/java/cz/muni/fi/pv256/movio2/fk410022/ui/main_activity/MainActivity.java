@@ -23,7 +23,6 @@ import cz.muni.fi.pv256.movio2.fk410022.ui.main_activity.film_list_fragments.Dis
 import cz.muni.fi.pv256.movio2.fk410022.ui.main_activity.film_list_fragments.FavoritesFragment;
 
 public class MainActivity extends BaseMenuActivity implements MainContract.View {
-    private static final String TAG = MainActivity.class.getSimpleName();
 
     private static final String FAVORITE_FRAGMENT_TAG = "FAVORITE_FRAGMENT_TAG";
     private static final String DISCOVER_FRAGMENT_TAG = "DISCOVER_FRAGMENT_TAG";

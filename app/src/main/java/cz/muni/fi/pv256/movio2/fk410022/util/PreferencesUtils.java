@@ -19,7 +19,7 @@ public class PreferencesUtils {
     }
 
     public Theme getPrefTheme() {
-        return Theme.fromValue(getPreferences().getInt(THEME_PREF_KEY, Theme.APP_THEME.getValue()));
+        return Theme.fromValue(getPreferences().getInt(THEME_PREF_KEY, context.getApplicationInfo().theme));
     }
 
     public boolean setPrefTheme(Theme theme) {

@@ -1,7 +1,6 @@
 package cz.muni.fi.pv256.movio2.fk410022.db;
 
 import android.support.v4.util.Pair;
-import android.util.Log;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.Model;
@@ -16,10 +15,9 @@ import java.util.List;
 
 import cz.muni.fi.pv256.movio2.fk410022.db.model.Film;
 import cz.muni.fi.pv256.movio2.fk410022.db.model.FilmGenre;
+import timber.log.Timber;
 
 public class FilmFacade {
-
-    private static final String TAG = FilmFacade.class.getSimpleName();
 
     /**
      * @param films films to be checked and potentially persisted
@@ -69,7 +67,7 @@ public class FilmFacade {
             ActiveAndroid.endTransaction(transaction);
         }
 
-        Log.i(TAG, String.format("Film Db count: %d", dbFilms.size() + newCount));
+        Timber.i("Film Db count: %d", dbFilms.size() + newCount);
 
         return new Pair<>(newCount, toUpdate.size() - newCount);
     }

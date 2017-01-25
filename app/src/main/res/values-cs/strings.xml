@@ -1,0 +1,62 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Titles -->
+    <string name="favorites">Oblíbené</string>
+    <string name="movies">Filmy</string>
+
+    <!-- Menu -->
+    <string name="change_theme">Změna tématu</string>
+    <string name="accessibility_refresh">Updatovat filmy</string>
+    <string name="accessibility_close_detail">Zavřít detail filmu</string>
+
+    <!-- Menu Switch -->
+    <string name="show_discover">Filmy</string>
+    <string name="show_favorites">Oblíbené</string>
+
+    <!-- Movie list headers -->
+    <string name="recent_popular_movies">Nové Populární</string>
+    <string name="highly_rated_scifi_movies">Vysoce Hodnocené Sci-fi</string>
+    <string name="current_year_popular_animated_movies" tools:ignore="PluralsCandidate">Populární Animované v roce %1$d</string>
+    <string name="accessibility_recent_popular_movies">Nové Populární Filmy. Pod tím se nachází posuvný horizontální list</string>
+    <string name="accessibility_current_year_popular_animated_movies" tools:ignore="PluralsCandidate">Populární Animované filny v roce %1$d. Pod tím se nachází posuvný horizontální list</string>
+    <string name="accessibility_highly_rated_scifi_movies">ysoce Hodnocené Sci-fi filmy. Pod tím se nachází posuvný horizontální list</string>
+
+    <!-- Movie list empty message -->
+    <string name="no_favorites">Přidej filmy do oblíbených </string>
+    <string name="no_movies">Updatuj filmy pro obnovení tohoto listu.</string>
+
+    <!-- Statuses -->
+    <string name="no_connection">Žádné připojení</string>
+    <string name="no_data">Nebyla obdržena žádná data.</string>
+    <string name="updating">Stahuji…</string>
+    <string name="empty_body_message">Api Error: Download received Empty body!</string>
+    <string name="updating_message">Stahuji Filmy</string>
+    <string name="error_message">Stahování %1$s selhalo! Nastal error: %2$s</string>
+    <string name="turn_network_back_on_message">Síť nedostupná. Stiskněte pro WiFi nastavení.</string>
+
+    <!-- Film details -->
+    <string name="rating_value">%1$.1f</string>
+    <string name="accessibility_add_to_favorites">Přidej do oblíbených</string>
+    <string name="accessibility_poster">Plakát</string>
+    <string name="accessibility_backdrop">Pozadí</string>
+    <string name="accessibility_backdrop_of">Pozadí %1$s</string>
+    <string name="accessibility_poster_of">Plakát %1$s</string>
+    <string name="accessibility_poster_rated">%1$s hodnocen %2$s. Tlačítko</string>
+
+    <plurals name="downloaded_message">
+        <item quantity="one">Stáhnut %d film</item>
+        <item quantity="few">Stáhnuty %d filmy</item>
+        <item quantity="other">Stáhnuto %d filmů</item>
+    </plurals>
+
+    <string name="updated_message">Updatováno %s</string>
+    <string name="and_updated_message">%1$s and updatováno %2$s</string>
+
+    <plurals name="movies">
+        <item quantity="one">%d film</item>
+        <item quantity="few">%d filmy</item>
+        <item quantity="other">%d filmů</item>
+    </plurals>
+
+
+</resources>

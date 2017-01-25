@@ -17,7 +17,7 @@
         android:label="${applicationLabel}"
         android:largeHeap="true"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="${flavorTheme}">
 
         <meta-data
             android:name="AA_DB_NAME"
@@ -46,7 +46,7 @@
 
         <provider
             android:name="com.activeandroid.content.ContentProvider"
-            android:authorities="cz.muni.fi.pv256.movio2.fk410022.provider"
+            android:authorities="@string/content_authority"
             android:enabled="true"
             android:exported="false"/>
 

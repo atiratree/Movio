@@ -64,7 +64,7 @@ public class NotificationUtils {
 
     private NotificationCompat.Builder getBuilder(String message, PendingIntent pIntent) {
         return new NotificationCompat.Builder(context)
-                .setContentTitle(context.getString(R.string.movio))
+                .setContentTitle(context.getString(R.string.app_name))
                 .setContentText(message)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentIntent(pIntent)

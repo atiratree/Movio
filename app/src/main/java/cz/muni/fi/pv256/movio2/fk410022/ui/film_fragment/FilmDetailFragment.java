@@ -23,7 +23,6 @@ import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.image.ImageHelper;
 
 public class FilmDetailFragment extends Fragment implements FilmDetailContract.View {
-    private static final String TAG = FilmDetailFragment.class.getSimpleName();
 
     private View view;
 

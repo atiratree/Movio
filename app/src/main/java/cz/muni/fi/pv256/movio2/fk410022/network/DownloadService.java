@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -32,6 +31,7 @@ import cz.muni.fi.pv256.movio2.fk410022.util.NotificationUtils;
 import cz.muni.fi.pv256.movio2.fk410022.util.PreferencesUtils;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import timber.log.Timber;
 
 public class DownloadService extends IntentService {
 
@@ -181,7 +181,7 @@ public class DownloadService extends IntentService {
         type.processRequestResult(result);
 
         prefUtils.setLastDownloadedPage(type, page);
-        Log.i(TAG, String.format("Downloaded %s page %d", type.name(), page));
+        Timber.i("Downloaded %s page %d", type.name(), page);
 
         if (films.getTotalPages() == page) {
             prefUtils.setPageCapReached(type, true);

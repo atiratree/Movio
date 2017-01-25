@@ -30,7 +30,6 @@ import cz.muni.fi.pv256.movio2.fk410022.util.image.ImageHelper;
 import static cz.muni.fi.pv256.movio2.fk410022.util.Utils.checkNotNull;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
-    private static final String TAG = MovieAdapter.class.getSimpleName();
 
     private List<Film> mDataset = Collections.emptyList();
     private String emptyMessage = "";

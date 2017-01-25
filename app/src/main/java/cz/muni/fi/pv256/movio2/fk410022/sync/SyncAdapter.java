@@ -38,7 +38,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     public static Account getSyncAccount(Context context) {
         AccountManager accountManager = (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
 
-        Account newAccount = new Account(context.getString(R.string.movio), context.getString(R.string.account_type));
+        Account newAccount = new Account(context.getString(R.string.app_name), context.getString(R.string.account_type));
 
         // If the password doesn't exist, the account doesn't exist
         if (null == accountManager.getPassword(newAccount)) {
