@@ -12,9 +12,4 @@ public abstract class MovioActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setTitle(R.string.app_name);
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
 }

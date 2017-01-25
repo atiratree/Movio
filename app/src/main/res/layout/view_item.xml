@@ -55,6 +55,7 @@
                 android:layout_toLeftOf="@+id/view_item_rating"
                 android:layout_toStartOf="@+id/view_item_rating"
                 android:background="@android:color/transparent"
+                android:importantForAccessibility="no"
                 android:gravity="center_vertical"/>
 
             <TextView

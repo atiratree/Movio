@@ -46,6 +46,7 @@ public class RxDbHelper {
         return executeSingle(resultClass, Collections.singletonList(Cache.getTableName(resultClass)), select);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends Model> rx.Observable<T> executeSingle(Class<T> resultClass, Collection<String> observeTables, From select) {
         return Cache.openDatabase().createQuery(observeTables, select.toSql(), select.getArguments())
                 .subscribeOn(Schedulers.io())

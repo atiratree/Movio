@@ -16,7 +16,7 @@ def VERSION_BUILD = 0
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '24.0.3'
+    buildToolsVersion '25.0.2'
 
     defaultConfig {
         applicationId "cz.muni.fi.pv256.movio2.fk410022"
@@ -55,7 +55,9 @@ android {
             minifyEnabled false // proguard
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.release
+            }
         }
 
         debug {

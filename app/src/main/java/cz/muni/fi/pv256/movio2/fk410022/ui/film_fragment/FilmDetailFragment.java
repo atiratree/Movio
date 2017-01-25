@@ -30,7 +30,7 @@ public class FilmDetailFragment extends Fragment implements FilmDetailContract.V
 
     private OnSwipeTouchListener onSwipeTouchListener;
 
-    FilmDetailContract.Presenter presenter;
+    private FilmDetailContract.Presenter presenter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
