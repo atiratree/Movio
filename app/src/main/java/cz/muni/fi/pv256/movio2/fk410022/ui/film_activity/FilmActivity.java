@@ -9,8 +9,6 @@ import cz.muni.fi.pv256.movio2.fk410022.ui.film_fragment.FilmDetailFragment;
 
 public class FilmActivity extends MovioActivity implements FilmContract.View {
 
-    private static final String TAG = FilmActivity.class.getSimpleName();
-
     FilmContract.Presenter presenter;
 
     @Override

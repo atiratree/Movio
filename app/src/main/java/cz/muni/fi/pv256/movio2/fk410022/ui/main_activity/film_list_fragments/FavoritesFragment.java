@@ -14,7 +14,6 @@ import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.presenter.fixed.FavoriteFilms
 import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.view.FilmAdapterView;
 
 public class FavoritesFragment extends Fragment {
-    private static final String TAG = FavoritesFragment.class.getSimpleName();
 
     private FilmAdapterView adapterView;
 

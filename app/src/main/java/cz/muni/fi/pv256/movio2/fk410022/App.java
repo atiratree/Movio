@@ -7,6 +7,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import cz.muni.fi.pv256.movio2.fk410022.sync.SyncAdapter;
 import cz.muni.fi.pv256.movio2.fk410022.util.image.SizeHelper;
+import timber.log.Timber;
 
 public class App extends Application {
 
@@ -25,6 +26,10 @@ public class App extends Application {
 
         if (BuildConfig.DEBUG) {
             DebugClass.initialize(this);
+        }
+
+        if (BuildConfig.LOGGING) {
+            Timber.plant(new Timber.DebugTree());
         }
 
         SizeHelper.init(getApplicationContext());

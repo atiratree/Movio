@@ -11,6 +11,7 @@ import cz.muni.fi.pv256.movio2.fk410022.rx.RxStore;
 import cz.muni.fi.pv256.movio2.fk410022.rx.message.SelectedFilm;
 import cz.muni.fi.pv256.movio2.fk410022.ui.presenter.SubscriptionPresenter;
 import rx.Subscription;
+import timber.log.Timber;
 
 public class FilmDetailPresenter extends SubscriptionPresenter implements FilmDetailContract.Presenter {
     private FilmDetailContract.View view;
@@ -51,12 +52,14 @@ public class FilmDetailPresenter extends SubscriptionPresenter implements FilmDe
     public void toggleFavorite() {
         if (favorite != null) {
             favorite.delete();
+            Timber.i("Deleted favorite %s", favorite.getFilm().getTitle());
             favorite = null;
         } else if (film != null) {
             favorite = new Favorite();
             favorite.setFavorite(true);
             favorite.setFilm(film);
             favorite.save();
+            Timber.i("Added favorite %s", favorite.getFilm().getTitle());
         }
     }
 

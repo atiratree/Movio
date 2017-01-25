@@ -1,5 +1,19 @@
 apply plugin: 'com.android.application'
 
+
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties = new Properties()
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+def VERSION_MAJOR = 1
+def VERSION_MINOR = 0
+def VERSION_PATCH = 0
+def VERSION_BUILD = 0
+
+
 android {
     compileSdkVersion 25
     buildToolsVersion '24.0.3'
@@ -10,11 +24,13 @@ android {
         minSdkVersion 16
         targetSdkVersion 25
         versionCode 1
-        versionName "1.0"
+        versionName "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
         jackOptions {
             enabled true
         }
         testInstrumentationRunner "cz.muni.fi.pv256.movio2.fk410022.custom.TestAppRunner"
+        buildConfigField "boolean", "LOGGING", 'false'
+        resConfigs "en", "cs"
     }
 
     compileOptions {
@@ -22,18 +38,69 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+
+    signingConfigs {
+        if (keystorePropertiesFile.exists()) {
+            release {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false // proguard
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
+
         debug {
             applicationIdSuffix ".debug"
-            versionNameSuffix '-DEBUG'
-            manifestPlaceholders = [applicationLabel: "FK410022 Debug"]
+            versionNameSuffix "-D"
+            buildConfigField "boolean", "LOGGING", 'true'
         }
     }
+
+    productFlavors {
+        green {
+            manifestPlaceholders = [flavorTheme: "@style/AppTheme"]
+        }
+
+        blue {
+            applicationIdSuffix ".blue"
+            versionNameSuffix "-B"
+            manifestPlaceholders = [flavorTheme: "@style/MyTheme"]
+        }
+    }
+
+    applicationVariants.all { variant ->
+        def flavor = variant.productFlavors.get(0).name
+        def build = variant.buildType.name
+
+        def suffix = "." + flavor + "." + build
+        variant.resValue "string", "account_type", defaultConfig.applicationId + suffix + ".yamoviedb"
+        variant.resValue "string", "content_authority", defaultConfig.applicationId + suffix + ".provider"
+
+
+        def nameSuffix = ""
+
+        if (flavor == "blue") {
+            nameSuffix = nameSuffix + " Blue"
+        }
+
+        if (build == "debug") {
+            nameSuffix = nameSuffix + " Debug"
+            variant.mergedFlavor.versionName = "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.${VERSION_BUILD}"
+        }
+
+
+        variant.resValue "string", "app_name", "yaMovieDB" + nameSuffix
+    }
+
 
     sourceSets {
         String sharedTestDir = 'src/sharedTest/java'
@@ -79,6 +146,8 @@ dependencies {
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'com.github.vicpinm:activeandroidrx:3.1.5'
 
+    // logging
+    compile 'com.jakewharton.timber:timber:4.5.1'
 
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
     debugCompile "com.facebook.stetho:stetho:$stethoVersion"

@@ -1,22 +1,23 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Titles -->
-    <string name="favorites">Favorites</string>
-    <string name="movies">Movies</string>
+    <string name="favorites">お気に入り</string>
+    <string name="movies">映画</string>
 
     <!-- Menu -->
-    <string name="change_theme">Change Theme</string>
-    <string name="accessibility_refresh">Refresh Movies</string>
-    <string name="accessibility_close_detail">Close Detail</string>
+    <string name="change_theme">テーマ 変化</string>
+    <string name="accessibility_refresh">映画をリフレッシュ</string>
+    <string name="accessibility_close_detail">ディテールを閉じる</string>
 
     <!-- Menu Switch -->
-    <string name="show_discover">Movies</string>
-    <string name="show_favorites">Favorites</string>
+    <string name="show_discover">映画</string>
+    <string name="show_favorites">お気に入り</string>
 
+    <!-- TODO: correct and finish ja translations -->
     <!-- Movie list headers -->
-    <string name="recent_popular_movies">New Popular</string>
-    <string name="highly_rated_scifi_movies">Highly Rated Sci-fi</string>
-    <string name="current_year_popular_animated_movies" tools:ignore="PluralsCandidate">Popular Animated in %1$d</string>
+    <string name="recent_popular_movies">新しい</string>
+    <string name="highly_rated_scifi_movies">ポピュラー ＳＦ</string>
+    <string name="current_year_popular_animated_movies" tools:ignore="PluralsCandidate">ポピュラーアニメ%1$d</string>
     <string name="accessibility_recent_popular_movies">New Popular Movies. Scrollable horizontal list bellow</string>
     <string name="accessibility_current_year_popular_animated_movies" tools:ignore="PluralsCandidate">Popular Animated Movies in %1$d. Scrollable horizontal list bellow</string>
     <string name="accessibility_highly_rated_scifi_movies">Highly Rated Sci-fi Movies. Scrollable horizontal list bellow</string>

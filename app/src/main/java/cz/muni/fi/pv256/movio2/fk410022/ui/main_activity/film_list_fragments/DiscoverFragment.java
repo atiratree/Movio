@@ -29,7 +29,6 @@ import cz.muni.fi.pv256.movio2.fk410022.ui.adapter.view.FilmAdapterView;
 import cz.muni.fi.pv256.movio2.fk410022.util.DateUtils;
 
 public class DiscoverFragment extends Fragment {
-    private static final String TAG = DiscoverFragment.class.getSimpleName();
 
     private Collection<FilmAdapterView> adapterViews;
 
